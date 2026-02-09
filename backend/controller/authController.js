@@ -3,9 +3,6 @@ const User = require("../models/userModel");
 const hashUtils = require("../utils/hash");
 const tokenUtils = require("../utils/token");
 
-/**
- * Register user (self-register)
- */
 exports.register = async function registerUser(req, res) {
   const email = req.body.email;
   const password = req.body.password;
@@ -17,7 +14,7 @@ exports.register = async function registerUser(req, res) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // 2. Hash password
+  
     const encryptedPassword = await hashUtils.hashPassword(password);
 
     // 3. Create user
