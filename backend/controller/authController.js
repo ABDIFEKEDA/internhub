@@ -1,32 +1,47 @@
-const uuid = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 const User = require("../models/userModel");
 const hashUtils = require("../utils/hash");
 const tokenUtils = require("../utils/token");
 
-exports.register = async function registerUser(req, res) {
-  const email = req.body.email;
-  const password = req.body.password;
-  const role = req.body.role;
+/**
+ * Register user
+ */
+exports.register = async (req, res) => {
+  const { email, password, role } = req.body;
+
+  // 1️⃣ Validate input
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
 
   try {
+   
     const userExists = await User.findByEmail(email);
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // 2. Hash password
-    const encryptedPassword = await hashUtils.hashPassword(password);
+    // 3️⃣ Hash password
+    const hashedPassword = await hashUtils.hashPassword(password);
 
+    // 4️⃣ Create user (✔ CORRECT KEYS)
     const newUser = await User.createUser({
-      id: uuid.v4(),
-      email: email,
-      hashedPassword: encryptedPassword,
-      role: role,
+      id: uuidv4(),
+      email,
+      hashedPassword, // ✅ FIXED
+      role,
+    });
+
+    // 5️⃣ Generate token
+    const token = tokenUtils.generateToken({
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
     });
 
     return res.status(201).json({
       message: "User registered successfully",
-      user: newUser.email,
+      token,
     });
   } catch (error) {
     console.error("REGISTER ERROR:", error);
@@ -37,18 +52,19 @@ exports.register = async function registerUser(req, res) {
 /**
  * Login user
  */
-exports.login = async function loginUser(req, res) {
-  const email = req.body.email;
-  const password = req.body.password;
+exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password required" });
+  }
 
   try {
-    // 1. Get user from DB
     const user = await User.findByEmail(email);
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 2. Compare password
     const passwordMatch = await hashUtils.comparePassword(
       password,
       user.password
@@ -58,8 +74,7 @@ exports.login = async function loginUser(req, res) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // 3. First login check
-    if (user.first_login === true) {
+    if (user.first_login) {
       return res.status(403).json({
         message: "Change password required",
         firstLogin: true,
@@ -67,13 +82,13 @@ exports.login = async function loginUser(req, res) {
       });
     }
 
-    // 4. Generate JWT
-    const jwtToken = tokenUtils.generateToken(user);
-
-    return res.json({
-      token: jwtToken,
+    const token = tokenUtils.generateToken({
+      id: user.id,
+      email: user.email,
       role: user.role,
     });
+
+    return res.json({ token, role: user.role });
   } catch (error) {
     console.error("LOGIN ERROR:", error);
     return res.status(500).json({ message: "Server error" });
@@ -83,14 +98,16 @@ exports.login = async function loginUser(req, res) {
 /**
  * Change password
  */
-exports.changePassword = async function changeUserPassword(req, res) {
-  const userId = req.body.userId;
-  const newPassword = req.body.newPassword;
+exports.changePassword = async (req, res) => {
+  const { userId, newPassword } = req.body;
+
+  if (!userId || !newPassword) {
+    return res.status(400).json({ message: "Missing data" });
+  }
 
   try {
-    const encryptedPassword = await hashUtils.hashPassword(newPassword);
-
-    await User.updatePassword(userId, encryptedPassword);
+    const hashedPassword = await hashUtils.hashPassword(newPassword);
+    await User.updatePassword(userId, hashedPassword);
 
     return res.json({ message: "Password changed successfully" });
   } catch (error) {

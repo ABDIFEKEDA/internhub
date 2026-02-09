@@ -3,10 +3,12 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./config/dbConnection.js");
 const authRoutes = require("./routes/authRouter");
+const applicationRoutes = require("./routes/application");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api/applications", applicationRoutes);
 
 
 app.use("/api/auth", authRoutes);
