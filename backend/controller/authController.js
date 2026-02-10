@@ -31,8 +31,6 @@ exports.register = async (req, res) => {
       hashedPassword, // ✅ FIXED
       role,
     });
-
-    // 5️⃣ Generate token
     const token = tokenUtils.generateToken({
       id: newUser.id,
       email: newUser.email,
