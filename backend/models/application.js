@@ -1,55 +1,219 @@
 const db = require("../config/dbConnection");
 
+// ==========================
+// Create MAIN application
+// ==========================
 exports.createApplication = async (data) => {
-  const result = await db.query(
-    `INSERT INTO applications (
-      id, first_name, last_name, department,
-      academic_year, email, github_link,
-      linkedin_link, cv_url, resume_url,
-      university_id, company_id, status
-    )
-    VALUES (
-      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'PENDING'
-    )
-    RETURNING *`,
+  const {
+    id,
+    university_id,
+    company_id,
+    first_name,
+    last_name,
+    department,
+    academic_year,
+    email,
+    github_link,
+    linkedin_link,
+    cv_url,
+    resume_url,
+    status
+  } = data;
+
+  await db.query(
+    `INSERT INTO universityapplications (
+      id,
+      university_id,
+      first_name,
+      last_name,
+      department,
+      academic_year,
+      email,
+      github_link,
+      linkedin_link,
+      cv_url,
+      resume_url,
+      status
+    ) VALUES (
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+    )`,
     [
-      data.id,
-      data.first_name,
-      data.last_name,
-      data.department,
-      data.academic_year,
-      data.email,
-      data.github_link,
-      data.linkedin_link,
-      data.cv_url,
-      data.resume_url,
-      data.university_id,
-      data.company_id
+      id,
+      university_id,
+      first_name,
+      last_name,
+      department,
+      academic_year,
+      email,
+      github_link,
+      linkedin_link,
+      cv_url,
+      resume_url,
+      status
     ]
   );
-
-  return result.rows[0];
 };
 
+// ==========================
+// Create UNIVERSITY application
+// ==========================
+exports.createUniversityApplication = async (data) => {
+  const {
+    id,
+    application_id,
+    university_id,
+    first_name,
+    last_name,
+    department,
+    academic_year,
+    email,
+    github_link,
+    linkedin_link,
+    cv_url,
+    resume_url,
+    status
+  } = data;
+
+  await db.query(
+    `INSERT INTO universityapplications (
+      id,
+      application_id,
+      university_id,
+      first_name,
+      last_name,
+      department,
+      academic_year,
+      email,
+      github_link,
+      linkedin_link,
+      cv_url,
+      resume_url,
+      status
+    ) VALUES (
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+    )`,
+    [
+      id,
+      application_id,
+      university_id,
+      first_name,
+      last_name,
+      department,
+      academic_year,
+      email,
+      github_link,
+      linkedin_link,
+      cv_url,
+      resume_url,
+      status
+    ]
+  );
+};
+
+// ==========================
+// Create COMPANY application 🔥
+// ==========================
+exports.createCompanyApplication = async (data) => {
+  const {
+    id,
+    application_id,
+    university_id,
+    first_name,
+    last_name,
+    department,
+    academic_year,
+    email,
+    github_link,
+    linkedin_link,
+    cv_url,
+    resume_url,
+    status
+  } = data;
+
+  await db.query(
+    `INSERT INTO companyapplications (
+      id,
+      application_id,
+      university_id,
+      first_name,
+      last_name,
+      department,
+      academic_year,
+      email,
+      github_link,
+      linkedin_link,
+      cv_url,
+      resume_url,
+      status
+    ) VALUES (
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+    )`,
+    [
+      id,
+      application_id,
+      university_id,
+      first_name,
+      last_name,
+      department,
+      academic_year,
+      email,
+      github_link,
+      linkedin_link,
+      cv_url,
+      resume_url,
+      status
+    ]
+  );
+};
+
+// ==========================
+// University views applications
+// ==========================
 exports.getApplicationsByUniversity = async (universityId) => {
   const result = await db.query(
-    "SELECT * FROM applications WHERE university_id=$1",
+    `SELECT * FROM universityapplications
+     WHERE university_id = $1
+     ORDER BY created_at DESC`,
     [universityId]
   );
   return result.rows;
 };
 
+// ==========================
+// Company views applications
+// ==========================
 exports.getApplicationsByCompany = async (companyId) => {
   const result = await db.query(
-    "SELECT * FROM applications WHERE company_id=$1",
+    `SELECT * FROM companyapplications
+     WHERE company_id = $1
+     ORDER BY created_at DESC`,
     [companyId]
   );
   return result.rows;
 };
 
-exports.updateStatus = async (id, status) => {
+// ==========================
+// Update application status (SYNC ALL TABLES)
+// ==========================
+exports.updateStatus = async (applicationId, status) => {
   await db.query(
-    "UPDATE applications SET status=$1 WHERE id=$2",
-    [status, id]
+    `UPDATE applications
+     SET status = $1
+     WHERE id = $2`,
+    [status, applicationId]
+  );
+
+  await db.query(
+    `UPDATE universityapplications
+     SET status = $1
+     WHERE application_id = $2`,
+    [status, applicationId]
+  );
+
+  await db.query(
+    `UPDATE companyapplications
+     SET status = $1
+     WHERE application_id = $2`,
+    [status, applicationId]
   );
 };
