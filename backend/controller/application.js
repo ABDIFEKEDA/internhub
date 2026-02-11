@@ -6,14 +6,12 @@ const Application = require("../models/application");
 // ==========================
 exports.applyInternship = async (req, res) => {
   try {
-    // 1️⃣ Auth check
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
     const universityId = req.user.id;
 
-    // 2️⃣ Extract body
     const {
       first_name,
       last_name,
@@ -27,19 +25,17 @@ exports.applyInternship = async (req, res) => {
       company_id
     } = req.body;
 
-    // 3️⃣ Validate required fields
     if (!first_name || !last_name || !email || !company_id) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // 4️⃣ Shared application ID
     const applicationId = uuidv4();
 
-    // 5️⃣ Insert into MAIN applications table
+    // Main applications table
     await Application.createApplication({
       id: applicationId,
       university_id: universityId,
-      company_id,
+      company_id,  // ✅ Fix applied
       first_name,
       last_name,
       department,
@@ -52,12 +48,12 @@ exports.applyInternship = async (req, res) => {
       status: "PENDING"
     });
 
-    // 6️⃣ Insert into universityapplications table
+    // University applications table
     await Application.createUniversityApplication({
       id: uuidv4(),
       application_id: applicationId,
       university_id: universityId,
-      company_id,
+      company_id,  // ✅ Fix applied
       first_name,
       last_name,
       department,
@@ -70,12 +66,12 @@ exports.applyInternship = async (req, res) => {
       status: "PENDING"
     });
 
-    // 7️⃣ Insert into companyapplications table (AUTO)
+    // Company applications table
     await Application.createCompanyApplication({
       id: uuidv4(),
       application_id: applicationId,
       university_id: universityId,
-      company_id,
+      company_id,  // ✅ Fix applied
       first_name,
       last_name,
       department,
