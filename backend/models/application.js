@@ -24,6 +24,7 @@ exports.createApplication = async (data) => {
     `INSERT INTO universityapplications (
       id,
       university_id,
+      company_id,
       first_name,
       last_name,
       department,
@@ -35,11 +36,12 @@ exports.createApplication = async (data) => {
       resume_url,
       status
     ) VALUES (
-      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
     )`,
     [
       id,
       university_id,
+      company_id,
       first_name,
       last_name,
       department,
@@ -62,6 +64,7 @@ exports.createUniversityApplication = async (data) => {
     id,
     application_id,
     university_id,
+    company_id,
     first_name,
     last_name,
     department,
@@ -79,6 +82,7 @@ exports.createUniversityApplication = async (data) => {
       id,
       application_id,
       university_id,
+      company_id,
       first_name,
       last_name,
       department,
@@ -90,12 +94,13 @@ exports.createUniversityApplication = async (data) => {
       resume_url,
       status
     ) VALUES (
-      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14
     )`,
     [
       id,
       application_id,
       university_id,
+      company_id,
       first_name,
       last_name,
       department,
@@ -118,6 +123,7 @@ exports.createCompanyApplication = async (data) => {
     id,
     application_id,
     university_id,
+    company_id,
     first_name,
     last_name,
     department,
@@ -135,6 +141,7 @@ exports.createCompanyApplication = async (data) => {
       id,
       application_id,
       university_id,
+      company_id,
       first_name,
       last_name,
       department,
@@ -146,12 +153,13 @@ exports.createCompanyApplication = async (data) => {
       resume_url,
       status
     ) VALUES (
-      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13
+      $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14
     )`,
     [
       id,
       application_id,
       university_id,
+      company_id,
       first_name,
       last_name,
       department,
