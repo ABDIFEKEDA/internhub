@@ -44,7 +44,6 @@ export default function ApplyInternshipDialog({
         setIsSubmitted(false);
         setSubmittedData(null);
       }, 3000);
-      
       return () => clearTimeout(timer);
     }
   }, [isSubmitted]);
@@ -87,7 +86,6 @@ export default function ApplyInternshipDialog({
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     
-    // Try multiple possible token keys
     const localToken = localStorage.getItem('accessToken') || 
                        localStorage.getItem('token') || 
                        localStorage.getItem('authToken');
@@ -114,7 +112,6 @@ export default function ApplyInternshipDialog({
 
     setErrors({});
 
-    // Create FormData for API
     const apiFormData = new FormData();
     apiFormData.append("first_name", formData.get("first_name") as string);
     apiFormData.append("last_name", formData.get("last_name") as string);
@@ -125,23 +122,16 @@ export default function ApplyInternshipDialog({
     apiFormData.append("linkedin_link", formData.get("linkedin_link") as string);
     apiFormData.append("company_id", companyId);
     
-    // Append files
     const cvFile = formData.get("cv") as File;
-    if (cvFile) {
-      apiFormData.append("cv", cvFile, cvFile.name);
-    }
+    if (cvFile) apiFormData.append("cv", cvFile, cvFile.name);
     
     const resumeFile = formData.get("resume") as File;
-    if (resumeFile) {
-      apiFormData.append("resume", resumeFile, resumeFile.name);
-    }
+    if (resumeFile) apiFormData.append("resume", resumeFile, resumeFile.name);
 
     try {
       const response = await fetch("http://localhost:5000/api/applications", {
         method: "POST",
-        headers: {
-          'Authorization': `Bearer ${localToken}`,
-        },
+        headers: { 'Authorization': `Bearer ${localToken}` },
         body: apiFormData,
       });
 
@@ -157,25 +147,25 @@ export default function ApplyInternshipDialog({
         throw new Error(data.message || "Application submission failed");
       }
 
-      // Success
-      console.log('✅ Application submitted:', data);
-      
       const application: Application = {
         id: data.application_id || Date.now(),
         student: `${formData.get("first_name")} ${formData.get("last_name")}`,
+        firstName: formData.get("first_name") as string,
+        lastName: formData.get("last_name") as string,
         company: "Company Name",
         fieldOfStudy: formData.get("department") as string,
         year: formData.get("academic_year") as string,
         github: formData.get("github_link") as string,
         linkedin: formData.get("linkedin_link") as string,
         cv: formData.get("cv") as File,
+        resume: formData.get("resume") as File,
+        email: formData.get("email") as string,
         status: "Pending",
         submittedAt: new Date().toISOString(),
       };
 
       onSubmit(application);
       
-      // Store submitted data for success message
       setSubmittedData({
         studentName: `${formData.get("first_name")} ${formData.get("last_name")}`,
         applicationId: data.application_id
@@ -183,7 +173,6 @@ export default function ApplyInternshipDialog({
       
       setIsSubmitted(true);
       
-      // Reset form but keep dialog open with success message
       const form = e.currentTarget;
       form.reset();
       setCvFileName("");
@@ -201,11 +190,8 @@ export default function ApplyInternshipDialog({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'cv' | 'resume') => {
     const file = e.target.files?.[0];
     if (file) {
-      if (fileType === 'cv') {
-        setCvFileName(file.name);
-      } else {
-        setResumeFileName(file.name);
-      }
+      if (fileType === 'cv') setCvFileName(file.name);
+      else setResumeFileName(file.name);
     }
   };
 
@@ -225,7 +211,6 @@ export default function ApplyInternshipDialog({
   const handleDialogOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (!newOpen) {
-      // Reset all states when dialog closes
       setTimeout(() => {
         setIsSubmitted(false);
         setIsError(false);
@@ -241,9 +226,7 @@ export default function ApplyInternshipDialog({
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
-        <Button 
-          className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
-        >
+        <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold px-6 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
           {triggerText}
         </Button>
       </DialogTrigger>
@@ -251,19 +234,15 @@ export default function ApplyInternshipDialog({
       <DialogContent 
         className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 border-0 rounded-xl shadow-2xl"
         aria-describedby="application-dialog-description"
-        onInteractOutside={(e) => {
-          // Prevent closing when success message is shown
-          if (isSubmitted) {
-            e.preventDefault();
-          }
-        }}
+        onInteractOutside={(e) => { if (isSubmitted) e.preventDefault(); }}
       >
-        <DialogHeader className="p-6 pb-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-t-xl">
+        {/* ✅ FIX: Always include DialogTitle - Hidden when showing success/error */}
+        <DialogHeader className={isSubmitted || isError ? "sr-only" : "p-6 pb-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-t-xl"}>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold text-gray-800">
-              {isSubmitted ? "Application Submitted!" : "Submit Student Application"}
+            <DialogTitle className={isSubmitted || isError ? "sr-only" : "text-2xl font-bold text-gray-800"}>
+              {isSubmitted ? "Application Submitted" : isError ? "Submission Failed" : "Submit Student Application"}
             </DialogTitle>
-            {!isSubmitted && (
+            {!isSubmitted && !isError && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -274,7 +253,7 @@ export default function ApplyInternshipDialog({
               </Button>
             )}
           </div>
-          {!isSubmitted && (
+          {!isSubmitted && !isError && (
             <p className="text-gray-600 mt-2">
               Fill in the student's information to submit their internship application.
             </p>
@@ -286,9 +265,13 @@ export default function ApplyInternshipDialog({
           academic details, and upload their CV and resume files.
         </span>
 
-        {/* Success Message - Inline instead of overlay */}
+        {/* Success Message */}
         {isSubmitted ? (
           <div className="p-8 flex flex-col items-center justify-center min-h-[400px]">
+            {/* ✅ FIX: Hidden DialogTitle for accessibility in success state */}
+            <DialogHeader className="sr-only">
+              <DialogTitle>Application Submitted Successfully</DialogTitle>
+            </DialogHeader>
             <div className="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-in zoom-in duration-500">
               <CheckCircle2 className="h-12 w-12 text-white" />
             </div>
@@ -304,340 +287,146 @@ export default function ApplyInternshipDialog({
                 </p>
               </div>
             )}
-            <p className="text-sm text-gray-500 mt-6">
-              This dialog will close in 3 seconds...
-            </p>
+            <p className="text-sm text-gray-500 mt-6">This dialog will close in 3 seconds...</p>
             <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => {
-                  setOpen(false);
-                  setIsSubmitted(false);
-                  setSubmittedData(null);
-                }}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-              >
+              <Button onClick={() => { setOpen(false); setIsSubmitted(false); setSubmittedData(null); }} className="bg-gradient-to-r from-orange-500 to-orange-600">
                 Close
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsSubmitted(false);
-                  setSubmittedData(null);
-                  // Reset form for new submission
-                  const form = document.querySelector('form');
-                  if (form) form.reset();
-                  setCvFileName("");
-                  setResumeFileName("");
-                }}
-              >
+              <Button variant="outline" onClick={() => { setIsSubmitted(false); setSubmittedData(null); setCvFileName(""); setResumeFileName(""); }}>
                 Submit Another Application
               </Button>
             </div>
           </div>
+        ) : isError ? (
+          /* Error Message */
+          <div className="p-8 flex flex-col items-center justify-center min-h-[400px]">
+            {/* ✅ FIX: Hidden DialogTitle for accessibility in error state */}
+            <DialogHeader className="sr-only">
+              <DialogTitle>Application Submission Failed</DialogTitle>
+            </DialogHeader>
+            <div className="w-24 h-24 bg-gradient-to-r from-red-500 to-rose-600 rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="h-12 w-12 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Submission Failed</h3>
+            <p className="text-gray-600 mb-6 text-center">{errorMessage}</p>
+            <div className="flex gap-3">
+              <Button onClick={() => setIsError(false)} className="bg-gradient-to-r from-orange-500 to-orange-600">
+                Try Again
+              </Button>
+              <Button variant="outline" onClick={handleClose}>
+                Close
+              </Button>
+            </div>
+          </div>
         ) : (
-          /* Error Overlay - Only show when there's an error and not submitting */
-          isError ? (
-            <div className="p-8 flex flex-col items-center justify-center min-h-[400px]">
-              <div className="w-24 h-24 bg-gradient-to-r from-red-500 to-rose-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertCircle className="h-12 w-12 text-white" />
+          /* Form */
+          <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Form fields - unchanged */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First Name */}
+              <div className="space-y-2">
+                <Label htmlFor="first_name" className="text-gray-700 font-medium">Student First Name *</Label>
+                <Input id="first_name" name="first_name" placeholder="Eba" className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.first_name ? 'border-red-500' : ''}`} />
+                {errors.first_name && <div className="flex items-center gap-2 text-red-500 text-sm"><AlertCircle className="h-4 w-4" />{errors.first_name}</div>}
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">Submission Failed</h3>
-              <p className="text-gray-600 mb-6 text-center">{errorMessage}</p>
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => setIsError(false)}
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-                >
-                  Try Again
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleClose}
-                >
-                  Close
-                </Button>
+
+              {/* Last Name */}
+              <div className="space-y-2">
+                <Label htmlFor="last_name" className="text-gray-700 font-medium">Student Last Name *</Label>
+                <Input id="last_name" name="last_name" placeholder="Asfaw" className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.last_name ? 'border-red-500' : ''}`} />
+                {errors.last_name && <div className="flex items-center gap-2 text-red-500 text-sm"><AlertCircle className="h-4 w-4" />{errors.last_name}</div>}
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-700 font-medium">Student Email *</Label>
+                <Input id="email" name="email" type="email" placeholder="student@university.edu" className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.email ? 'border-red-500' : ''}`} />
+                {errors.email && <div className="flex items-center gap-2 text-red-500 text-sm"><AlertCircle className="h-4 w-4" />{errors.email}</div>}
+              </div>
+
+              {/* Department */}
+              <div className="space-y-2">
+                <Label htmlFor="department" className="text-gray-700 font-medium">Department *</Label>
+                <Input id="department" name="department" placeholder="Computer Engineering" className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.department ? 'border-red-500' : ''}`} />
+                {errors.department && <div className="flex items-center gap-2 text-red-500 text-sm"><AlertCircle className="h-4 w-4" />{errors.department}</div>}
+              </div>
+
+              {/* Academic Year */}
+              <div className="space-y-2">
+                <Label htmlFor="academic_year" className="text-gray-700 font-medium">Academic Year *</Label>
+                <select id="academic_year" name="academic_year" className={`w-full h-10 px-3 border rounded-md focus:border-orange-500 focus:ring-orange-500 ${errors.academic_year ? 'border-red-500' : 'border-gray-300'}`}>
+                  <option value="">Select year</option>
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                  <option value="4th Year">4th Year</option>
+                  <option value="5th Year">5th Year</option>
+                </select>
+                {errors.academic_year && <div className="flex items-center gap-2 text-red-500 text-sm"><AlertCircle className="h-4 w-4" />{errors.academic_year}</div>}
+              </div>
+
+              {/* GitHub Link */}
+              <div className="space-y-2">
+                <Label htmlFor="github_link" className="text-gray-700 font-medium">Student GitHub Link *</Label>
+                <Input id="github_link" name="github_link" placeholder="https://github.com/studentusername" className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.github_link ? 'border-red-500' : ''}`} />
+                {errors.github_link && <div className="flex items-center gap-2 text-red-500 text-sm"><AlertCircle className="h-4 w-4" />{errors.github_link}</div>}
+              </div>
+
+              {/* LinkedIn Link */}
+              <div className="space-y-2">
+                <Label htmlFor="linkedin_link" className="text-gray-700 font-medium">Student LinkedIn Link *</Label>
+                <Input id="linkedin_link" name="linkedin_link" placeholder="https://linkedin.com/in/studentusername" className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.linkedin_link ? 'border-red-500' : ''}`} />
+                {errors.linkedin_link && <div className="flex items-center gap-2 text-red-500 text-sm"><AlertCircle className="h-4 w-4" />{errors.linkedin_link}</div>}
               </div>
             </div>
-          ) : (
-            /* Form */
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* ... rest of your form remains exactly the same ... */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* First Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="first_name" className="text-gray-700 font-medium">
-                    Student First Name *
-                  </Label>
-                  <Input 
-                    id="first_name"
-                    name="first_name" 
-                    placeholder="Eba"
-                    className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.first_name ? 'border-red-500' : ''}`}
-                  />
-                  {errors.first_name && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.first_name}
-                    </div>
-                  )}
-                </div>
 
-                {/* Last Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="last_name" className="text-gray-700 font-medium">
-                    Student Last Name *
-                  </Label>
-                  <Input 
-                    id="last_name"
-                    name="last_name" 
-                    placeholder="Asfaw"
-                    className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.last_name ? 'border-red-500' : ''}`}
-                  />
-                  {errors.last_name && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.last_name}
-                    </div>
-                  )}
-                </div>
+            <input type="hidden" name="company_id" value={companyId} />
 
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">
-                    Student Email *
-                  </Label>
-                  <Input 
-                    id="email"
-                    name="email" 
-                    type="email"
-                    placeholder="student@university.edu"
-                    className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.email ? 'border-red-500' : ''}`}
-                  />
-                  {errors.email && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.email}
-                    </div>
-                  )}
-                </div>
-
-                {/* Department */}
-                <div className="space-y-2">
-                  <Label htmlFor="department" className="text-gray-700 font-medium">
-                    Department *
-                  </Label>
-                  <Input 
-                    id="department"
-                    name="department" 
-                    placeholder="Computer Engineering"
-                    className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.department ? 'border-red-500' : ''}`}
-                  />
-                  {errors.department && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.department}
-                    </div>
-                  )}
-                </div>
-
-                {/* Academic Year */}
-                <div className="space-y-2">
-                  <Label htmlFor="academic_year" className="text-gray-700 font-medium">
-                    Academic Year *
-                  </Label>
-                  <select 
-                    id="academic_year"
-                    name="academic_year"
-                    className={`w-full h-10 px-3 border rounded-md focus:border-orange-500 focus:ring-orange-500 ${
-                      errors.academic_year ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                  >
-                    <option value="">Select year</option>
-                    <option value="1st Year">1st Year</option>
-                    <option value="2nd Year">2nd Year</option>
-                    <option value="3rd Year">3rd Year</option>
-                    <option value="4th Year">4th Year</option>
-                    <option value="5th Year">5th Year</option>
-                  </select>
-                  {errors.academic_year && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.academic_year}
-                    </div>
-                  )}
-                </div>
-
-                {/* GitHub Link */}
-                <div className="space-y-2">
-                  <Label htmlFor="github_link" className="text-gray-700 font-medium">
-                    Student GitHub Link *
-                  </Label>
-                  <Input 
-                    id="github_link"
-                    name="github_link" 
-                    placeholder="https://github.com/studentusername"
-                    className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.github_link ? 'border-red-500' : ''}`}
-                  />
-                  {errors.github_link && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.github_link}
-                    </div>
-                  )}
-                </div>
-
-                {/* LinkedIn Link */}
-                <div className="space-y-2">
-                  <Label htmlFor="linkedin_link" className="text-gray-700 font-medium">
-                    Student LinkedIn Link *
-                  </Label>
-                  <Input 
-                    id="linkedin_link"
-                    name="linkedin_link" 
-                    placeholder="https://linkedin.com/in/studentusername"
-                    className={`border-gray-300 focus:border-orange-500 focus:ring-orange-500 ${errors.linkedin_link ? 'border-red-500' : ''}`}
-                  />
-                  {errors.linkedin_link && (
-                    <div className="flex items-center gap-2 text-red-500 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      {errors.linkedin_link}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Hidden company_id */}
-              <input type="hidden" name="company_id" value={companyId} />
-
-              {/* CV Upload */}
-              <div className="space-y-2">
-                <Label htmlFor="cv-upload" className="text-gray-700 font-medium flex items-center gap-2">
-                  <Upload className="h-4 w-4 text-orange-500" />
-                  Student CV (PDF) *
-                </Label>
-                <div className="relative">
-                  <Input
-                    type="file"
-                    name="cv"
-                    accept=".pdf"
-                    onChange={(e) => handleFileChange(e, 'cv')}
-                    className="hidden"
-                    id="cv-upload"
-                  />
-                  <label
-                    htmlFor="cv-upload"
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl transition-colors duration-300 group cursor-pointer ${
-                      errors.cv 
-                        ? 'border-red-300 bg-red-50' 
-                        : 'border-orange-300 bg-orange-50 hover:bg-orange-100'
-                    }`}
-                  >
-                    <Upload className={`w-8 h-8 mb-3 ${errors.cv ? 'text-red-500' : 'text-orange-500 group-hover:text-orange-600'}`} />
-                    <p className="text-sm text-gray-600">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p className="text-xs text-gray-500">PDF only (MAX. 2MB)</p>
-                  </label>
-                  {cvFileName && (
-                    <div className="mt-3 flex items-center justify-between bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200">
-                      <span className="text-sm font-medium text-gray-700 truncate">{cvFileName}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setCvFileName("");
-                          const input = document.getElementById('cv-upload') as HTMLInputElement;
-                          if (input) input.value = '';
-                        }}
-                        className="h-8 w-8 p-0 hover:bg-orange-200"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                {errors.cv && (
-                  <div className="flex items-center gap-2 text-red-500 text-sm mt-2">
-                    <AlertCircle className="h-4 w-4" />
-                    {errors.cv}
+            {/* CV Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="cv-upload" className="text-gray-700 font-medium flex items-center gap-2"><Upload className="h-4 w-4 text-orange-500" />Student CV (PDF) *</Label>
+              <div className="relative">
+                <Input type="file" name="cv" accept=".pdf" onChange={(e) => handleFileChange(e, 'cv')} className="hidden" id="cv-upload" />
+                <label htmlFor="cv-upload" className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl transition-colors duration-300 group cursor-pointer ${errors.cv ? 'border-red-300 bg-red-50' : 'border-orange-300 bg-orange-50 hover:bg-orange-100'}`}>
+                  <Upload className={`w-8 h-8 mb-3 ${errors.cv ? 'text-red-500' : 'text-orange-500 group-hover:text-orange-600'}`} />
+                  <p className="text-sm text-gray-600"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p className="text-xs text-gray-500">PDF only (MAX. 2MB)</p>
+                </label>
+                {cvFileName && (
+                  <div className="mt-3 flex items-center justify-between bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200">
+                    <span className="text-sm font-medium text-gray-700 truncate">{cvFileName}</span>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => { setCvFileName(""); const input = document.getElementById('cv-upload') as HTMLInputElement; if (input) input.value = ''; }} className="h-8 w-8 p-0 hover:bg-orange-200"><X className="h-4 w-4" /></Button>
                   </div>
                 )}
               </div>
+              {errors.cv && <div className="flex items-center gap-2 text-red-500 text-sm mt-2"><AlertCircle className="h-4 w-4" />{errors.cv}</div>}
+            </div>
 
-              {/* Resume Upload */}
-              <div className="space-y-2">
-                <Label htmlFor="resume-upload" className="text-gray-700 font-medium flex items-center gap-2">
-                  <Upload className="h-4 w-4 text-orange-500" />
-                  Student Resume (PDF) *
-                </Label>
-                <div className="relative">
-                  <Input
-                    type="file"
-                    name="resume"
-                    accept=".pdf"
-                    onChange={(e) => handleFileChange(e, 'resume')}
-                    className="hidden"
-                    id="resume-upload"
-                  />
-                  <label
-                    htmlFor="resume-upload"
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl transition-colors duration-300 group cursor-pointer ${
-                      errors.resume 
-                        ? 'border-red-300 bg-red-50' 
-                        : 'border-orange-300 bg-orange-50 hover:bg-orange-100'
-                    }`}
-                  >
-                    <Upload className={`w-8 h-8 mb-3 ${errors.resume ? 'text-red-500' : 'text-orange-500 group-hover:text-orange-600'}`} />
-                    <p className="text-sm text-gray-600">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p className="text-xs text-gray-500">PDF only (MAX. 2MB)</p>
-                  </label>
-                  {resumeFileName && (
-                    <div className="mt-3 flex items-center justify-between bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200">
-                      <span className="text-sm font-medium text-gray-700 truncate">{resumeFileName}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setResumeFileName("");
-                          const input = document.getElementById('resume-upload') as HTMLInputElement;
-                          if (input) input.value = '';
-                        }}
-                        className="h-8 w-8 p-0 hover:bg-orange-200"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                {errors.resume && (
-                  <div className="flex items-center gap-2 text-red-500 text-sm mt-2">
-                    <AlertCircle className="h-4 w-4" />
-                    {errors.resume}
+            {/* Resume Upload */}
+            <div className="space-y-2">
+              <Label htmlFor="resume-upload" className="text-gray-700 font-medium flex items-center gap-2"><Upload className="h-4 w-4 text-orange-500" />Student Resume (PDF) *</Label>
+              <div className="relative">
+                <Input type="file" name="resume" accept=".pdf" onChange={(e) => handleFileChange(e, 'resume')} className="hidden" id="resume-upload" />
+                <label htmlFor="resume-upload" className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl transition-colors duration-300 group cursor-pointer ${errors.resume ? 'border-red-300 bg-red-50' : 'border-orange-300 bg-orange-50 hover:bg-orange-100'}`}>
+                  <Upload className={`w-8 h-8 mb-3 ${errors.resume ? 'text-red-500' : 'text-orange-500 group-hover:text-orange-600'}`} />
+                  <p className="text-sm text-gray-600"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p className="text-xs text-gray-500">PDF only (MAX. 2MB)</p>
+                </label>
+                {resumeFileName && (
+                  <div className="mt-3 flex items-center justify-between bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-3 border border-orange-200">
+                    <span className="text-sm font-medium text-gray-700 truncate">{resumeFileName}</span>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => { setResumeFileName(""); const input = document.getElementById('resume-upload') as HTMLInputElement; if (input) input.value = ''; }} className="h-8 w-8 p-0 hover:bg-orange-200"><X className="h-4 w-4" /></Button>
                   </div>
                 )}
               </div>
+              {errors.resume && <div className="flex items-center gap-2 text-red-500 text-sm mt-2"><AlertCircle className="h-4 w-4" />{errors.resume}</div>}
+            </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Submitting Application...
-                  </>
-                ) : (
-                  'Submit Application'
-                )}
-              </Button>
-            </form>
-          )
+            {/* Submit Button */}
+            <Button type="submit" disabled={isSubmitting} className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-70">
+              {isSubmitting ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" />Submitting Application...</> : 'Submit Application'}
+            </Button>
+          </form>
         )}
       </DialogContent>
     </Dialog>

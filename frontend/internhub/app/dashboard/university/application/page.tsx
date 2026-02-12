@@ -83,8 +83,17 @@ export default function ApplicationsPage() {
     } finally { setLoading(false); }
   };
 
+  // ✅ FIXED: Add application with proper status formatting
   const addApplication = (app: Application) => {
-    setApps(prev => [app, ...prev]);
+    // Ensure status is properly formatted (Pending, not PENDING)
+    const formattedApp = {
+      ...app,
+      status: app.status === "PENDING" ? "Pending" : 
+              app.status === "ACCEPTED" ? "Accepted" : 
+              app.status === "REJECTED" ? "Rejected" : 
+              app.status || "Pending"
+    };
+    setApps(prev => [formattedApp, ...prev]);
     setTotalApps(prev => prev + 1);
   };
 
@@ -118,11 +127,12 @@ export default function ApplicationsPage() {
 
   const formatDate = (date: string) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
+  // ✅ FIXED: Stats now correctly count applications
   const stats = {
     total: totalApps,
-    accepted: apps.filter(a => a.status === "Accepted").length,
-    pending: apps.filter(a => a.status === "Pending").length,
-    rejected: apps.filter(a => a.status === "Rejected").length,
+    accepted: apps.filter(a => a.status?.toLowerCase() === "accepted").length,
+    pending: apps.filter(a => a.status?.toLowerCase() === "pending").length,
+    rejected: apps.filter(a => a.status?.toLowerCase() === "rejected").length,
   };
 
   return (
@@ -138,26 +148,55 @@ export default function ApplicationsPage() {
           <ApplyInternshipDialog onSubmit={addApplication} />
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - FIXED: Using dynamic color classes */}
         <div className="grid grid-cols-4 gap-5">
-          {[
-            { label: "Total", value: stats.total, icon: Users, color: "blue" },
-            { label: "Accepted", value: stats.accepted, icon: CheckCircle, color: "emerald" },
-            { label: "Pending", value: stats.pending, icon: Clock, color: "amber" },
-            { label: "Rejected", value: stats.rejected, icon: XCircle, color: "rose" },
-          ].map(({ label, value, icon: Icon, color }) => (
-            <Card key={label} className="border-none shadow-sm">
-              <CardContent className="p-6 flex justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">{label}</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
-                </div>
-                <div className={`p-3 bg-${color}-50 rounded-xl`}>
-                  <Icon className={`h-6 w-6 text-${color}-600`} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 flex justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-xl">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 flex justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Accepted</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.accepted}</p>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-xl">
+                <CheckCircle className="h-6 w-6 text-emerald-600" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 flex justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Pending</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.pending}</p>
+              </div>
+              <div className="p-3 bg-amber-50 rounded-xl">
+                <Clock className="h-6 w-6 text-amber-600" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 flex justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Rejected</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.rejected}</p>
+              </div>
+              <div className="p-3 bg-rose-50 rounded-xl">
+                <XCircle className="h-6 w-6 text-rose-600" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filters */}
@@ -269,12 +308,15 @@ export default function ApplicationsPage() {
           </Card>
         )}
 
-        {/* View Modal */}
+        {/* View Modal - Add hidden DialogTitle for accessibility */}
         <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
           <DialogContent className="max-w-4xl p-0 overflow-hidden rounded-2xl">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Application Details</DialogTitle>
+            </DialogHeader>
             {selectedApp && (
               <div className="flex flex-col h-full max-h-[85vh]">
-                {/* Header */}
+                {/* Header - same as before */}
                 <div className="bg-gradient-to-r from-orange-600 to-amber-500 px-8 py-5 text-white">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-4">
@@ -295,9 +337,9 @@ export default function ApplicationsPage() {
                   </div>
                 </div>
 
-                {/* Scrollable Content */}
+                {/* Rest of modal - unchanged */}
                 <div className="overflow-y-auto flex-1 px-8 py-5 space-y-5">
-                  {/* Quick Info */}
+                  {/* ... keep all your existing modal content ... */}
                   <div className="grid grid-cols-3 gap-4">
                     {[
                       { icon: Mail, label: "Email", value: selectedApp.email, href: `mailto:${selectedApp.email}` },
@@ -317,7 +359,6 @@ export default function ApplicationsPage() {
                     ))}
                   </div>
 
-                  {/* Academic */}
                   <div className="bg-white rounded-xl border p-5">
                     <h3 className="font-semibold flex items-center gap-2 mb-4"><GraduationCap className="h-4 w-4 text-orange-600" />Academic</h3>
                     <div className="grid grid-cols-4 gap-4">
@@ -335,7 +376,6 @@ export default function ApplicationsPage() {
                     </div>
                   </div>
 
-                  {/* Social */}
                   {(selectedApp.github || selectedApp.linkedin) && (
                     <div className="bg-white rounded-xl border p-5">
                       <h3 className="font-semibold flex items-center gap-2 mb-4"><UserCircle className="h-4 w-4 text-orange-600" />Profiles</h3>
@@ -354,7 +394,6 @@ export default function ApplicationsPage() {
                     </div>
                   )}
 
-                  {/* Documents */}
                   <div className="bg-white rounded-xl border p-5">
                     <h3 className="font-semibold flex items-center gap-2 mb-4"><FileText className="h-4 w-4 text-orange-600" />Documents</h3>
                     <div className="grid grid-cols-2 gap-4">
@@ -380,7 +419,6 @@ export default function ApplicationsPage() {
                   </div>
                 </div>
 
-                {/* Footer */}
                 <div className="px-8 py-4 bg-white border-t flex justify-end gap-3">
                   <Button variant="outline" onClick={() => setIsViewOpen(false)}>Close</Button>
                   <Button className="bg-gradient-to-r from-orange-600 to-amber-600 text-white">
