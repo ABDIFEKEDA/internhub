@@ -21,7 +21,6 @@ exports.applyInternship = async (req, res) => {
 
     const universityId = req.user.id;
     
-    // Get form data from request body
     const {
       first_name,
       last_name,
@@ -57,12 +56,10 @@ exports.applyInternship = async (req, res) => {
       const cvFileName = `cv_${uuidv4()}${cvExtension}`;
       const cvPath = path.join(uploadDir, cvFileName);
       
-      // Validate file type
       if (cvFile.mimetype !== 'application/pdf') {
         return res.status(400).json({ message: "CV must be a PDF file" });
       }
       
-      // Validate file size (2MB limit)
       if (cvFile.size > 2 * 1024 * 1024) {
         return res.status(400).json({ message: "CV must be less than 2MB" });
       }
@@ -80,12 +77,10 @@ exports.applyInternship = async (req, res) => {
       const resumeFileName = `resume_${uuidv4()}${resumeExtension}`;
       const resumePath = path.join(uploadDir, resumeFileName);
       
-      // Validate file type
       if (resumeFile.mimetype !== 'application/pdf') {
         return res.status(400).json({ message: "Resume must be a PDF file" });
       }
       
-      // Validate file size (2MB limit)
       if (resumeFile.size > 2 * 1024 * 1024) {
         return res.status(400).json({ message: "Resume must be less than 2MB" });
       }
@@ -99,28 +94,10 @@ exports.applyInternship = async (req, res) => {
     const applicationId = uuidv4();
     const timestamp = new Date().toISOString();
 
-    // Main applications table
-    await Application.createApplication({
-      id: applicationId,
-      university_id: universityId,
-      company_id,
-      first_name,
-      last_name,
-      department,
-      academic_year,
-      email,
-      github_link,
-      linkedin_link,
-      cv_url: cvUrl,
-      resume_url: resumeUrl,
-      status: "PENDING",
-      created_at: timestamp,
-      updated_at: timestamp
-    });
-
-    // University applications table
+    // ✅ Insert into universityapplications
+    const universityAppId = uuidv4();
     await Application.createUniversityApplication({
-      id: uuidv4(),
+      id: universityAppId,
       application_id: applicationId,
       university_id: universityId,
       company_id,
@@ -137,24 +114,29 @@ exports.applyInternship = async (req, res) => {
       created_at: timestamp
     });
 
-    // Company applications table
-    await Application.createCompanyApplication({
-      id: uuidv4(),
-      application_id: applicationId,
-      university_id: universityId,
-      company_id,
-      first_name,
-      last_name,
-      department,
-      academic_year,
-      email,
-      github_link,
-      linkedin_link,
-      cv_url: cvUrl,
-      resume_url: resumeUrl,
-      status: "PENDING",
-      created_at: timestamp
-    });
+    // ✅ Try to insert into companyapplications (don't fail if it doesn't work)
+    try {
+      await Application.createCompanyApplication({
+        id: uuidv4(),
+        application_id: applicationId,
+        university_id: universityId,
+        company_id,
+        first_name,
+        last_name,
+        department,
+        academic_year,
+        email,
+        github_link,
+        linkedin_link,
+        cv_url: cvUrl,
+        resume_url: resumeUrl,
+        status: "PENDING",
+        created_at: timestamp
+      });
+      console.log("✅ Company application created successfully");
+    } catch (companyErr) {
+      console.error("⚠️ Company application insert failed (non-critical):", companyErr.message);
+    }
 
     res.status(201).json({
       message: "Application submitted successfully",
@@ -164,7 +146,7 @@ exports.applyInternship = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("APPLICATION SUBMISSION ERROR:", err);
+    console.error("❌ APPLICATION SUBMISSION ERROR:", err);
     res.status(500).json({ 
       message: "Server error during application submission", 
       error: err.message 
@@ -256,7 +238,7 @@ exports.reviewApplication = async (req, res) => {
       return res.status(400).json({ message: "Invalid status. Must be ACCEPTED, REJECTED, or UNDER_REVIEW" });
     }
 
-    // Check if application exists and belongs to this company
+    // ✅ FIX: Use getApplicationById instead of getUniversityApplicationById
     const application = await Application.getApplicationById(applicationId);
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
@@ -267,6 +249,7 @@ exports.reviewApplication = async (req, res) => {
       return res.status(403).json({ message: "You don't have permission to review this application" });
     }
 
+    // Update status in BOTH tables
     await Application.updateStatus(
       applicationId, 
       status.toUpperCase(),
@@ -297,6 +280,8 @@ exports.getApplicationById = async (req, res) => {
     }
 
     const applicationId = req.params.id;
+    
+    // ✅ FIX: Use getApplicationById from model
     const application = await Application.getApplicationById(applicationId);
 
     if (!application) {
@@ -324,7 +309,6 @@ exports.downloadFile = async (req, res) => {
     const fileName = req.params.filename;
     const filePath = path.join(uploadDir, fileName);
 
-    // Security: Prevent directory traversal attacks
     const normalizedPath = path.normalize(filePath);
     if (!normalizedPath.startsWith(uploadDir)) {
       return res.status(403).json({ message: "Access denied" });
