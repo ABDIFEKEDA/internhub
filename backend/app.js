@@ -4,14 +4,35 @@ const cors = require("cors");
 const db = require("./config/dbConnection.js");
 const authRoutes = require("./routes/authRouter");
 const applicationRoutes = require("./routes/application");
+const path = require('path');
+const fileUpload = require('express-fileupload');
 
 const app = express();
-app.use(cors());
+
+// ✅ FIX 1: CORS should be first and only once
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+}));
+
+// ✅ FIX 2: fileUpload must come BEFORE express.json() and express.urlencoded()
+app.use(fileUpload({
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max
+  abortOnLimit: true,
+  responseOnLimit: 'File size limit exceeded (max 2MB)',
+  createParentPath: true // Automatically create directories
+}));
+
+// ✅ FIX 3: These should come AFTER fileUpload
 app.use(express.json());
-app.use("/api/applications", applicationRoutes);
+app.use(express.urlencoded({ extended: true }));
 
+// Serve static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// ✅ FIX 4: Routes should be after all middleware
 app.use("/api/auth", authRoutes);
+app.use("/api/applications", applicationRoutes);
 
 // Example protected route
 const { protect, restrictTo } = require("./middleware/authmidlleware");
@@ -19,9 +40,8 @@ app.get("/api/protected", protect, restrictTo("admin"), (req, res) => {
   res.json({ message: `Hello ${req.user.email}, you are ${req.user.role}` });
 });
 
-
+// 404 handler
 app.use((req, res) => res.status(404).json({ message: "Endpoint not found" }));
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

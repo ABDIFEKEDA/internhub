@@ -34,13 +34,13 @@ export default function LandingPage() {
             {/* Auth Buttons */}
             <div className="flex items-center gap-3">
               <Link 
-                href="/login" 
+                href="/auth/login" 
                 className="px-4 py-2 rounded-lg border border-orange-500 text-orange-600 hover:bg-orange-50"
               >
                 Login
               </Link>
               <Link 
-                href="/register" 
+                href="/auth/signup" 
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700"
               >
                 Register
@@ -73,13 +73,13 @@ export default function LandingPage() {
           {/* Call to Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
             <Link 
-              href="/register" 
+              href="/auth/signup" 
               className="px-10 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 font-semibold text-lg shadow-2xl hover:shadow-orange-500/30 transition-all duration-300"
             >
               Get Started Free
             </Link>
             <Link 
-              href="/login" 
+              href="/auth/login" 
               className="px-10 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white rounded-xl hover:bg-white/20 font-semibold text-lg transition-all duration-300"
             >
               Explore Platform
