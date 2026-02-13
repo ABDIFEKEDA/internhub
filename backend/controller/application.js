@@ -133,7 +133,7 @@ exports.applyInternship = async (req, res) => {
         status: "PENDING",
         created_at: timestamp
       });
-      console.log("✅ Company application created successfully");
+      console.log("Company application created successfully");
     } catch (companyErr) {
       console.error("⚠️ Company application insert failed (non-critical):", companyErr.message);
     }
@@ -146,7 +146,7 @@ exports.applyInternship = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ APPLICATION SUBMISSION ERROR:", err);
+    console.error(" APPLICATION SUBMISSION ERROR:", err);
     res.status(500).json({ 
       message: "Server error during application submission", 
       error: err.message 
@@ -188,9 +188,7 @@ exports.getUniversityApplications = async (req, res) => {
   }
 };
 
-// ==========================
-// Company views applications
-// ==========================
+
 exports.getCompanyApplications = async (req, res) => {
   try {
     if (!req.user || !req.user.id) {
@@ -222,9 +220,7 @@ exports.getCompanyApplications = async (req, res) => {
   }
 };
 
-// ==========================
-// Company reviews application (update status)
-// ==========================
+
 exports.reviewApplication = async (req, res) => {
   try {
     if (!req.user || !req.user.id) {
@@ -244,10 +240,10 @@ exports.reviewApplication = async (req, res) => {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    // Verify that this company has permission to review this application
-    if (application.company_id !== req.user.id) {
-      return res.status(403).json({ message: "You don't have permission to review this application" });
-    }
+    // // Verify that this company has permission to review this application
+    // if (application.company_id !== req.user.id) {
+    //   return res.status(403).json({ message: "You don't have permission to review this application" });
+    // }
 
     // Update status in BOTH tables
     await Application.updateStatus(

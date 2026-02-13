@@ -18,14 +18,9 @@ import {
   Github, Linkedin, FileText, Download, Calendar,
   Building2, UserCircle, Loader2, AlertCircle
 } from "lucide-react";
-import type { Application } from "../../../types/Application";
+import type { Application, BackendApplication} from "../../../types/Application";
 
-interface BackendApplication {
-  id: string; first_name: string; last_name: string; department: string;
-  academic_year: string; email: string; github_link: string; linkedin_link: string;
-  cv_url: string; resume_url: string; company_id: string; status: string;
-  created_at: string; university_id: string;
-}
+
 
 export default function ApplicationsPage() {
   const [apps, setApps] = useState<Application[]>([]);
@@ -88,9 +83,9 @@ export default function ApplicationsPage() {
     // Ensure status is properly formatted (Pending, not PENDING)
     const formattedApp = {
       ...app,
-      status: app.status === "PENDING" ? "Pending" : 
-              app.status === "ACCEPTED" ? "Accepted" : 
-              app.status === "REJECTED" ? "Rejected" : 
+      status: app.status === "Pending" ? "Pending" : 
+              app.status === "Accepted" ? "Accepted" : 
+              app.status === "Rejected" ? "Rejected" : 
               app.status || "Pending"
     };
     setApps(prev => [formattedApp, ...prev]);
@@ -264,10 +259,10 @@ export default function ApplicationsPage() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center">
-                            <span className="text-orange-700 font-semibold">{app.firstName?.[0]}{app.lastName?.[0]}</span>
+                            <span className="text-orange-700 font-semibold">{app.first_name?.[0]}{app.last_name?.[0]}</span>
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{app.student}</p>
+                            <p className="font-medium text-gray-900">{app.first_name} {app.last_name}</p>
                             <p className="text-xs text-gray-500 flex items-center gap-1"><Mail className="h-3 w-3" />{app.email}</p>
                           </div>
                         </div>
@@ -277,7 +272,7 @@ export default function ApplicationsPage() {
                           <GraduationCap className="h-4 w-4 text-gray-400" />
                           <div>
                             <p className="text-sm font-medium">{app.fieldOfStudy}</p>
-                            <p className="text-xs text-gray-500">{app.year}</p>
+                            <p className="text-xs text-gray-500">{app.github}</p>
                           </div>
                         </div>
                       </TableCell>
@@ -327,7 +322,7 @@ export default function ApplicationsPage() {
                         <h2 className="text-2xl font-bold">{selectedApp.student}</h2>
                         <div className="flex gap-2 mt-1">
                           <Badge className="bg-white/20 text-white border-white/30">{selectedApp.fieldOfStudy}</Badge>
-                          <Badge className="bg-white/20 text-white border-white/30">{selectedApp.year}</Badge>
+                          <Badge className="bg-white/20 text-white border-white/30">{selectedApp.academic_year}</Badge>
                         </div>
                       </div>
                     </div>
@@ -343,7 +338,7 @@ export default function ApplicationsPage() {
                   <div className="grid grid-cols-3 gap-4">
                     {[
                       { icon: Mail, label: "Email", value: selectedApp.email, href: `mailto:${selectedApp.email}` },
-                      { icon: Calendar, label: "Submitted", value: formatDate(selectedApp.submittedAt || "") },
+                      { icon: Calendar, label: "Submitted", value: formatDate(selectedApp.created_at || "") },
                       { icon: Building2, label: "Company", value: selectedApp.company },
                     ].map(({ icon: Icon, label, value, href }) => (
                       <div key={label} className="bg-orange-50/50 p-4 rounded-xl border border-orange-100">
@@ -364,7 +359,7 @@ export default function ApplicationsPage() {
                     <div className="grid grid-cols-4 gap-4">
                       {[
                         { label: "Department", value: selectedApp.fieldOfStudy },
-                        { label: "Year", value: selectedApp.year },
+                        { label: "Year", value: selectedApp.academic_year },
                         { label: "First Name", value: selectedApp.firstName },
                         { label: "Last Name", value: selectedApp.lastName },
                       ].map(({ label, value }) => (

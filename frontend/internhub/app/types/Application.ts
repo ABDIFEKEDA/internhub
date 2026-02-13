@@ -1,13 +1,17 @@
 // Application Status Types
-export type ApplicationStatus = 'Pending' | 'Accepted' | 'Rejected' | 'In Review' | 'Withdrawn';
+export type ApplicationStatus =
+  | "Pending"
+  | "Accepted"
+  | "Rejected"
 
 // Main Application Interface
 export interface Application {
   id: number;
   student: string;
   company: string;
+  firstName: string;
+  lastName: string;
   fieldOfStudy: string;
-  year: string;
   github: string;
   linkedin: string;
   cv: File | string | null;
@@ -16,6 +20,11 @@ export interface Application {
   applicationId?: string; // UUID from backend
   createdAt?: string;
   updatedAt?: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  created_at: string;
+  academic_year: string;
 }
 
 // Form Data Interface (matches your JSON payload)
@@ -145,8 +154,25 @@ export interface Evaluation {
   advisorId: string;
   advisorName: string;
   score: string;
-  status: 'Completed' | 'In Review' | 'Pending';
+  status: "Completed" | "In Review" | "Pending";
   comments?: string;
   date: string;
   progress: number;
+}
+
+export interface BackendApplication {
+  id: string;
+  first_name: string;
+  last_name: string;
+  department: string;
+  academic_year: string;
+  email: string;
+  github_link: string;
+  linkedin_link: string;
+  cv_url: string;
+  resume_url: string;
+  company_id: string;
+  status: string;
+  created_at: string;
+  university_id: string;
 }
