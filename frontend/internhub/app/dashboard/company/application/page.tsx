@@ -132,7 +132,7 @@ export default function CompanyApplicationsPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ 
-          status: newStatus,
+          status: newStatus.toLowerCase(),
           feedback: feedbackText || ''
         })
       })
@@ -179,7 +179,8 @@ export default function CompanyApplicationsPage() {
 
   // Get status badge
   const getStatusBadge = (status: string) => {
-    switch(status) {
+    const normalizedStatus = status?.toUpperCase() || 'PENDING';
+    switch(normalizedStatus) {
       case 'PENDING':
         return <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit"><Clock className="h-3 w-3" /> Pending</span>
       case 'UNDER_REVIEW':

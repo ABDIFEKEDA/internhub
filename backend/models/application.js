@@ -1,71 +1,9 @@
 const db = require("../config/dbConnection");
 
 // ==========================
-// Create MAIN application (universityapplications table)
+// Create application in universityapplications table
 // ==========================
 exports.createApplication = async (data) => {
-  const {
-    id,
-    university_id,
-    company_id,
-    first_name,
-    last_name,
-    department,
-    academic_year,
-    email,
-    github_link,
-    linkedin_link,
-    cv_url,
-    resume_url,
-    status,
-    created_at,
-    updated_at
-  } = data;
-
-  await db.query(
-    `INSERT INTO universityapplications (
-      id,
-      university_id,
-      company_id,
-      first_name,
-      last_name,
-      department,
-      academic_year,
-      email,
-      github_link,
-      linkedin_link,
-      cv_url,
-      resume_url,
-      status,
-      created_at,
-      updated_at
-    ) VALUES (
-      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
-    )`,
-    [
-      id,
-      university_id,
-      company_id,
-      first_name,
-      last_name,
-      department,
-      academic_year,
-      email,
-      github_link,
-      linkedin_link,
-      cv_url,
-      resume_url,
-      status,
-      created_at,
-      updated_at
-    ]
-  );
-};
-
-// ==========================
-// Create UNIVERSITY application
-// ==========================
-exports.createUniversityApplication = async (data) => {
   const {
     id,
     application_id,
@@ -186,31 +124,29 @@ exports.createCompanyApplication = async (data) => {
   );
 };
 
-// ==========================
-// ✅ FIXED: University views applications - NO companies table join
-// ==========================
+
 exports.getApplicationsByUniversity = async (universityId, options = {}) => {
   try {
     const { limit = 10, offset = 0, status = null } = options;
-    
+
     let query = `
       SELECT *
       FROM universityapplications
       WHERE university_id = $1
     `;
-    
+
     const params = [universityId];
     let paramIndex = 2;
-    
+
     if (status) {
       query += ` AND status = $${paramIndex}`;
       params.push(status);
       paramIndex++;
     }
-    
+
     query += ` ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     params.push(parseInt(limit), parseInt(offset));
-    
+
     const result = await db.query(query, params);
     return result.rows;
   } catch (error) {
@@ -226,12 +162,12 @@ exports.getApplicationsCountByUniversity = async (universityId, status = null) =
   try {
     let query = `SELECT COUNT(*) as total FROM universityapplications WHERE university_id = $1`;
     const params = [universityId];
-    
+
     if (status) {
       query += ` AND status = $2`;
       params.push(status);
     }
-    
+
     const result = await db.query(query, params);
     return parseInt(result.rows[0].total);
   } catch (error) {
@@ -240,31 +176,29 @@ exports.getApplicationsCountByUniversity = async (universityId, status = null) =
   }
 };
 
-// ==========================
-// ✅ FIXED: Company views applications - NO universities table join
-// ==========================
+
 exports.getApplicationsByCompany = async (companyId, options = {}) => {
   try {
     const { limit = 10, offset = 0, status = null } = options;
-    
+
     let query = `
       SELECT *
       FROM companyapplications
       WHERE company_id = $1
     `;
-    
+
     const params = [companyId];
     let paramIndex = 2;
-    
+
     if (status) {
       query += ` AND status = $${paramIndex}`;
       params.push(status);
       paramIndex++;
     }
-    
+
     query += ` ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
     params.push(parseInt(limit), parseInt(offset));
-    
+
     const result = await db.query(query, params);
     return result.rows;
   } catch (error) {
@@ -273,19 +207,17 @@ exports.getApplicationsByCompany = async (companyId, options = {}) => {
   }
 };
 
-// ==========================
-// ✅ FIXED: COUNT method for company applications
-// ==========================
+
 exports.getApplicationsCountByCompany = async (companyId, status = null) => {
   try {
     let query = `SELECT COUNT(*) as total FROM companyapplications WHERE company_id = $1`;
     const params = [companyId];
-    
+
     if (status) {
       query += ` AND status = $2`;
       params.push(status);
     }
-    
+
     const result = await db.query(query, params);
     return parseInt(result.rows[0].total);
   } catch (error) {
@@ -294,15 +226,22 @@ exports.getApplicationsCountByCompany = async (companyId, status = null) => {
   }
 };
 
-// ==========================
-// Get single application by ID
-// ==========================
 exports.getApplicationById = async (applicationId) => {
   try {
-    const result = await db.query(
+    // Try to find by id first
+    let result = await db.query(
       `SELECT * FROM universityapplications WHERE id = $1`,
       [applicationId]
     );
+    
+    // If not found, try by application_id
+    if (result.rows.length === 0) {
+      result = await db.query(
+        `SELECT * FROM universityapplications WHERE application_id = $1`,
+        [applicationId]
+      );
+    }
+    
     return result.rows[0];
   } catch (error) {
     console.error("Error in getApplicationById:", error);
@@ -310,9 +249,7 @@ exports.getApplicationById = async (applicationId) => {
   }
 };
 
-// ==========================
-// Update application status (SYNC ALL TABLES)
-// ==========================
+
 exports.updateStatus = async (applicationId, status, feedback = null, reviewerId = null) => {
   try {
     // Update universityapplications table
@@ -346,9 +283,7 @@ exports.updateStatus = async (applicationId, status, feedback = null, reviewerId
   }
 };
 
-// ==========================
-// Search applications
-// ==========================
+
 exports.searchApplications = async (universityId, searchTerm) => {
   try {
     const result = await db.query(
@@ -366,6 +301,36 @@ exports.searchApplications = async (universityId, searchTerm) => {
     return result.rows;
   } catch (error) {
     console.error("Error in searchApplications:", error);
+    throw error;
+  }
+};
+
+exports.getCompanyStats = async (companyId) => {
+  try {
+    const result = await db.query(
+      `SELECT 
+        COUNT(*) as total,
+        COUNT(*) FILTER (WHERE status = 'pending') as pending,
+        COUNT(*) FILTER (WHERE status = 'under_review') as under_review,
+        COUNT(*) FILTER (WHERE status = 'shortlisted') as shortlisted,
+        COUNT(*) FILTER (WHERE status = 'accepted') as accepted,
+        COUNT(*) FILTER (WHERE status = 'rejected') as rejected
+       FROM companyapplications
+       WHERE company_id = $1`,
+      [companyId]
+    );
+    
+    const stats = result.rows[0];
+    return {
+      total: parseInt(stats.total) || 0,
+      pending: parseInt(stats.pending) || 0,
+      under_review: parseInt(stats.under_review) || 0,
+      shortlisted: parseInt(stats.shortlisted) || 0,
+      accepted: parseInt(stats.accepted) || 0,
+      rejected: parseInt(stats.rejected) || 0
+    };
+  } catch (error) {
+    console.error("Error in getCompanyStats:", error);
     throw error;
   }
 };
