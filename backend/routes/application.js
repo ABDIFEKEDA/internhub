@@ -9,7 +9,7 @@ ApplicationRouter.post(
   "/",
   protect,
   restrictTo("university"),
-  controller.applyInternship   
+  controller.applyInternship 
 );
 
 ApplicationRouter.get(

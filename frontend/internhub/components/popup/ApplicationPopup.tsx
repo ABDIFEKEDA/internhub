@@ -86,6 +86,9 @@ export default function ApplyInternshipDialog({
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     
+    // Store form reference immediately before any async operations
+    const formElement = e.currentTarget;
+    
     const localToken = localStorage.getItem('accessToken') || 
                        localStorage.getItem('token') || 
                        localStorage.getItem('authToken');
@@ -101,7 +104,7 @@ export default function ApplyInternshipDialog({
     setIsError(false);
     setErrorMessage("");
     
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(formElement);
     const validationErrors = validate(formData);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -164,17 +167,28 @@ export default function ApplyInternshipDialog({
         submittedAt: new Date().toISOString(),
       };
 
-      onSubmit(application);
-      
-      // Reset form BEFORE showing success message
-      const form = e.currentTarget;
-      form.reset();
+      // Store submitted data before resetting form
+      const studentName = `${formData.get("first_name")} ${formData.get("last_name")}`;
+      const applicationId = data.application_id;
+
+      // Reset form using stored reference (check if still exists)
+      if (formElement) {
+        try {
+          formElement.reset();
+        } catch (err) {
+          console.log("Form already unmounted, skipping reset");
+        }
+      }
       setCvFileName("");
       setResumeFileName("");
+
+      // Call parent callback
+      onSubmit(application);
       
+      // Now update state to show success message
       setSubmittedData({
-        studentName: `${formData.get("first_name")} ${formData.get("last_name")}`,
-        applicationId: data.application_id
+        studentName,
+        applicationId
       });
       
       setIsSubmitted(true);

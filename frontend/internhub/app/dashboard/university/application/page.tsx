@@ -16,7 +16,7 @@ import {
   Users, CheckCircle, XCircle, Clock, Search, Filter,
   ChevronLeft, ChevronRight, Eye, Mail, GraduationCap,
   Github, Linkedin, FileText, Download, Calendar,
-  Building2, UserCircle, Loader2, AlertCircle, BookOpen, User
+  Building2, UserCircle, Loader2, AlertCircle, BookOpen, User, X
 } from "lucide-react";
 import type { Application, BackendApplication} from "../../../types/Application";
 
@@ -31,9 +31,18 @@ export default function ApplicationsPage() {
   const [totalApps, setTotalApps] = useState(0);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
-  const limit = 5;
+  const limit = 50; // Increased limit to show more applications per page
 
   useEffect(() => { fetchApps(); }, [page, statusFilter, search]);
+
+  // Auto-refresh every 30 seconds to show new applications
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchApps();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [page, statusFilter, search]);
 
   const fetchApps = async () => {
     try {
@@ -76,8 +85,8 @@ export default function ApplicationsPage() {
     } finally { setLoading(false); }
   };
 
-  // Add application with proper status formatting
-  const addApplication = (app: Application) => {
+  // Add application with proper status formatting and refresh data
+  const addApplication = async (app: Application) => {
     const formattedApp = {
       ...app,
       status: app.status === "Pending" ? "Pending" : 
@@ -85,8 +94,14 @@ export default function ApplicationsPage() {
               app.status === "Rejected" ? "Rejected" : 
               app.status || "Pending"
     };
+    // Add to UI immediately for instant feedback
     setApps(prev => [formattedApp, ...prev]);
     setTotalApps(prev => prev + 1);
+    
+    // Refresh data from server to ensure consistency
+    setTimeout(() => {
+      fetchApps();
+    }, 500);
   };
 
   const viewApplication = (app: Application) => {
@@ -197,31 +212,84 @@ export default function ApplicationsPage() {
         </div>
 
         {/* Filters */}
-        <Card className="border-none shadow-sm">
+        {/* Enhanced Filters Section */}
+        <Card className="border-none shadow-md bg-gradient-to-br from-white to-blue-50/30">
           <CardContent className="p-6">
-            <div className="flex justify-between items-center">
-              <div className="flex gap-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              {/* Search and Filter Controls */}
+              <div className="flex flex-col sm:flex-row gap-3 flex-1">
+                {/* Search Input */}
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-400" />
                   <input
-                    placeholder="Search name or email..."
+                    placeholder="Search by name or email..."
                     value={search}
                     onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                    className="pl-10 pr-4 py-2.5 border rounded-lg w-72 focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-12 pr-4 py-3 border-2 border-blue-100 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400 text-gray-700 shadow-sm hover:border-blue-200"
                   />
                 </div>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                  className="border rounded-lg px-3 py-2.5 bg-white focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="all">All Status</option>
-                  <option value="PENDING">Pending</option>
-                  <option value="ACCEPTED">Accepted</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
+
+                {/* Status Filter Dropdown */}
+                <div className="relative min-w-[200px]">
+                  <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-400 pointer-events-none" />
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                    className="w-full pl-12 pr-10 py-3 border-2 border-blue-100 rounded-xl bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-700 font-medium shadow-sm hover:border-blue-200 cursor-pointer appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 0.75rem center',
+                      backgroundSize: '1.25rem'
+                    }}
+                  >
+                    <option value="all">All Status</option>
+                    <option value="PENDING">⏳ Pending</option>
+                    <option value="ACCEPTED">✅ Accepted</option>
+                    <option value="REJECTED">❌ Rejected</option>
+                  </select>
+                </div>
               </div>
-              
+
+              {/* Filter Summary Badge */}
+              {(search || statusFilter !== "all") && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
+                    <Filter className="h-4 w-4" />
+                    <span>
+                      {search && `"${search}"`}
+                      {search && statusFilter !== "all" && " • "}
+                      {statusFilter !== "all" && statusFilter}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearch("");
+                      setStatusFilter("all");
+                      setPage(1);
+                    }}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Clear
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Results Summary */}
+            <div className="mt-4 pt-4 border-t border-blue-100">
+              <p className="text-sm text-gray-600">
+                Showing <span className="font-semibold text-blue-600">{apps.length}</span> of{" "}
+                <span className="font-semibold text-blue-600">{totalApps}</span> applications
+                {statusFilter !== "all" && (
+                  <span className="ml-1">
+                    • Filtered by <span className="font-semibold text-blue-600">{statusFilter.toLowerCase()}</span> status
+                  </span>
+                )}
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -129,17 +129,18 @@ exports.getApplicationsByUniversity = async (universityId, options = {}) => {
   try {
     const { limit = 10, offset = 0, status = null } = options;
 
+    // Get ALL applications, not filtered by university_id
     let query = `
       SELECT *
       FROM universityapplications
-      WHERE university_id = $1
     `;
 
-    const params = [universityId];
-    let paramIndex = 2;
+    const params = [];
+    let paramIndex = 1;
 
+    // Add WHERE clause only if status filter is provided
     if (status) {
-      query += ` AND status = $${paramIndex}`;
+      query += ` WHERE status = $${paramIndex}`;
       params.push(status);
       paramIndex++;
     }
@@ -160,11 +161,12 @@ exports.getApplicationsByUniversity = async (universityId, options = {}) => {
 // ==========================
 exports.getApplicationsCountByUniversity = async (universityId, status = null) => {
   try {
-    let query = `SELECT COUNT(*) as total FROM universityapplications WHERE university_id = $1`;
-    const params = [universityId];
+    // Count ALL applications, not filtered by university_id
+    let query = `SELECT COUNT(*) as total FROM universityapplications`;
+    const params = [];
 
     if (status) {
-      query += ` AND status = $2`;
+      query += ` WHERE status = $1`;
       params.push(status);
     }
 
@@ -181,17 +183,18 @@ exports.getApplicationsByCompany = async (companyId, options = {}) => {
   try {
     const { limit = 10, offset = 0, status = null } = options;
 
+    // Get ALL applications, not filtered by company_id
     let query = `
       SELECT *
       FROM companyapplications
-      WHERE company_id = $1
     `;
 
-    const params = [companyId];
-    let paramIndex = 2;
+    const params = [];
+    let paramIndex = 1;
 
+    // Add WHERE clause only if status filter is provided
     if (status) {
-      query += ` AND status = $${paramIndex}`;
+      query += ` WHERE status = $${paramIndex}`;
       params.push(status);
       paramIndex++;
     }
@@ -210,11 +213,12 @@ exports.getApplicationsByCompany = async (companyId, options = {}) => {
 
 exports.getApplicationsCountByCompany = async (companyId, status = null) => {
   try {
-    let query = `SELECT COUNT(*) as total FROM companyapplications WHERE company_id = $1`;
-    const params = [companyId];
+    // Count ALL applications, not filtered by company_id
+    let query = `SELECT COUNT(*) as total FROM companyapplications`;
+    const params = [];
 
     if (status) {
-      query += ` AND status = $2`;
+      query += ` WHERE status = $1`;
       params.push(status);
     }
 
@@ -315,9 +319,8 @@ exports.getCompanyStats = async (companyId) => {
         COUNT(*) FILTER (WHERE status = 'shortlisted') as shortlisted,
         COUNT(*) FILTER (WHERE status = 'accepted') as accepted,
         COUNT(*) FILTER (WHERE status = 'rejected') as rejected
-       FROM companyapplications
-       WHERE company_id = $1`,
-      [companyId]
+       FROM companyapplications`,
+      []
     );
     
     const stats = result.rows[0];

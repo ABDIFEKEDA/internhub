@@ -73,6 +73,16 @@ export default function CompanyApplicationsPage() {
     fetchStats()
   }, [currentPage, statusFilter, departmentFilter])
 
+  // Auto-refresh every 30 seconds to show new applications
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchApplications()
+      fetchStats()
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [currentPage, statusFilter, departmentFilter]);
+
   const fetchApplications = async () => {
     setLoading(true)
     try {
@@ -200,70 +210,67 @@ export default function CompanyApplicationsPage() {
   const getStatusActions = (application: Application) => {
     return (
       <div className="flex gap-2 mt-4 flex-wrap">
+        {/* Accept Button - Available for PENDING, UNDER_REVIEW, and SHORTLISTED */}
+        {(application.status === 'PENDING' || application.status === 'UNDER_REVIEW' || application.status === 'SHORTLISTED') && (
+          <button
+            onClick={() => updateApplicationStatus(application.application_id, 'ACCEPTED')}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+          >
+            <CheckCircle className="h-4 w-4" /> Accept
+          </button>
+        )}
+        
+        {/* Reject Button - Available for PENDING, UNDER_REVIEW, and SHORTLISTED */}
+        {(application.status === 'PENDING' || application.status === 'UNDER_REVIEW' || application.status === 'SHORTLISTED') && (
+          <button
+            onClick={() => updateApplicationStatus(application.application_id, 'REJECTED')}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+          >
+            <XCircle className="h-4 w-4" /> Reject
+          </button>
+        )}
+        
+        {/* Additional Status Buttons */}
         {application.status === 'PENDING' && (
-          <>
-            <button
-              onClick={() => updateApplicationStatus(application.application_id, 'UNDER_REVIEW')}
-              className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
-            >
-              <AlertCircle className="h-4 w-4" /> Review
-            </button>
-            <button
-              onClick={() => {
-                setSelectedApplication(application)
-                setShowDetailsModal(true)
-              }}
-              className="bg-gray-600 text-white px-3 py-1 rounded-md text-sm hover:bg-gray-700 flex items-center gap-1"
-            >
-              <Eye className="h-4 w-4" /> View
-            </button>
-          </>
+          <button
+            onClick={() => updateApplicationStatus(application.application_id, 'UNDER_REVIEW')}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+          >
+            <AlertCircle className="h-4 w-4" /> Review
+          </button>
         )}
         
         {application.status === 'UNDER_REVIEW' && (
-          <>
-            <button
-              onClick={() => updateApplicationStatus(application.application_id, 'SHORTLISTED')}
-              className="bg-purple-600 text-white px-3 py-1 rounded-md text-sm hover:bg-purple-700 flex items-center gap-1"
-            >
-              <Star className="h-4 w-4" /> Shortlist
-            </button>
-            <button
-              onClick={() => updateApplicationStatus(application.application_id, 'REJECTED')}
-              className="bg-red-600 text-white px-3 py-1 rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
-            >
-              <XCircle className="h-4 w-4" /> Reject
-            </button>
-          </>
+          <button
+            onClick={() => updateApplicationStatus(application.application_id, 'SHORTLISTED')}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+          >
+            <Star className="h-4 w-4" /> Shortlist
+          </button>
         )}
         
-        {application.status === 'SHORTLISTED' && (
-          <>
-            <button
-              onClick={() => updateApplicationStatus(application.application_id, 'ACCEPTED')}
-              className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700 flex items-center gap-1"
-            >
-              <CheckCircle className="h-4 w-4" /> Accept
-            </button>
-            <button
-              onClick={() => updateApplicationStatus(application.application_id, 'REJECTED')}
-              className="bg-red-600 text-white px-3 py-1 rounded-md text-sm hover:bg-red-700 flex items-center gap-1"
-            >
-              <XCircle className="h-4 w-4" /> Reject
-            </button>
-          </>
-        )}
+        {/* View Details Button - Always available */}
+        <button
+          onClick={() => {
+            setSelectedApplication(application)
+            setShowDetailsModal(true)
+          }}
+          className="bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700 flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+        >
+          <Eye className="h-4 w-4" /> View Details
+        </button>
         
+        {/* Status Indicators for Final States */}
         {application.status === 'ACCEPTED' && (
-          <span className="text-green-600 text-sm font-medium flex items-center gap-1">
-            <CheckCircle className="h-4 w-4" /> Accepted
-          </span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold">
+            <CheckCircle className="h-5 w-5" /> Application Accepted
+          </div>
         )}
         
         {application.status === 'REJECTED' && (
-          <span className="text-red-600 text-sm font-medium flex items-center gap-1">
-            <XCircle className="h-4 w-4" /> Rejected
-          </span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg font-semibold">
+            <XCircle className="h-5 w-5" /> Application Rejected
+          </div>
         )}
       </div>
     )
@@ -607,56 +614,66 @@ export default function CompanyApplicationsPage() {
                         rows={3}
                       />
                       
-                      <div className="flex gap-2 flex-wrap">
+                      {/* Primary Action Buttons - Always Visible */}
+                      <div className="flex gap-3 flex-wrap">
+                        {/* Accept Button - Available for non-accepted applications */}
+                        {selectedApplication.status !== 'ACCEPTED' && (
+                          <button
+                            onClick={() => updateApplicationStatus(selectedApplication.application_id, 'ACCEPTED')}
+                            className="flex-1 min-w-[200px] bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                          >
+                            <CheckCircle className="h-5 w-5" />
+                            Accept Application
+                          </button>
+                        )}
+                        
+                        {/* Reject Button - Available for non-rejected applications */}
+                        {selectedApplication.status !== 'REJECTED' && (
+                          <button
+                            onClick={() => updateApplicationStatus(selectedApplication.application_id, 'REJECTED')}
+                            className="flex-1 min-w-[200px] bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                          >
+                            <XCircle className="h-5 w-5" />
+                            Reject Application
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Secondary Action Buttons */}
+                      <div className="flex gap-2 flex-wrap pt-2 border-t border-orange-200">
                         {selectedApplication.status === 'PENDING' && (
-                          <>
-                            <button
-                              onClick={() => updateApplicationStatus(selectedApplication.application_id, 'UNDER_REVIEW')}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                            >
-                              Start Review
-                            </button>
-                            <button
-                              onClick={() => updateApplicationStatus(selectedApplication.application_id, 'REJECTED')}
-                              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                            >
-                              Reject
-                            </button>
-                          </>
+                          <button
+                            onClick={() => updateApplicationStatus(selectedApplication.application_id, 'UNDER_REVIEW')}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                          >
+                            <AlertCircle className="h-4 w-4" />
+                            Start Review
+                          </button>
                         )}
                         
                         {selectedApplication.status === 'UNDER_REVIEW' && (
-                          <>
-                            <button
-                              onClick={() => updateApplicationStatus(selectedApplication.application_id, 'SHORTLISTED')}
-                              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
-                            >
-                              Shortlist
-                            </button>
-                            <button
-                              onClick={() => updateApplicationStatus(selectedApplication.application_id, 'REJECTED')}
-                              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                            >
-                              Reject
-                            </button>
-                          </>
+                          <button
+                            onClick={() => updateApplicationStatus(selectedApplication.application_id, 'SHORTLISTED')}
+                            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2"
+                          >
+                            <Star className="h-4 w-4" />
+                            Shortlist
+                          </button>
                         )}
                         
-                        {selectedApplication.status === 'SHORTLISTED' && (
-                          <>
-                            <button
-                              onClick={() => updateApplicationStatus(selectedApplication.application_id, 'ACCEPTED')}
-                              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-                            >
-                              Accept
-                            </button>
-                            <button
-                              onClick={() => updateApplicationStatus(selectedApplication.application_id, 'REJECTED')}
-                              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                            >
-                              Reject
-                            </button>
-                          </>
+                        {/* Status Indicators for Final States */}
+                        {selectedApplication.status === 'ACCEPTED' && (
+                          <div className="w-full p-4 bg-green-100 text-green-700 rounded-lg font-semibold flex items-center justify-center gap-2">
+                            <CheckCircle className="h-6 w-6" />
+                            This application has been accepted
+                          </div>
+                        )}
+                        
+                        {selectedApplication.status === 'REJECTED' && (
+                          <div className="w-full p-4 bg-red-100 text-red-700 rounded-lg font-semibold flex items-center justify-center gap-2">
+                            <XCircle className="h-6 w-6" />
+                            This application has been rejected
+                          </div>
                         )}
                       </div>
                     </div>
