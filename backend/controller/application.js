@@ -245,11 +245,7 @@ exports.reviewApplication = async (req, res) => {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    if (application.company_id !== req.user.id) {
-      return res.status(403).json({
-        message: "You don't have permission to review this application"
-      });
-    }
+    // Allow any company to review any application (removed company_id check)
 
     const updatedApplication = await Application.updateStatus(
       applicationId,
