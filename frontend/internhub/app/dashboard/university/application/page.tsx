@@ -31,7 +31,7 @@ export default function ApplicationsPage() {
   const [totalApps, setTotalApps] = useState(0);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
-  const limit = 50; // Increased limit to show more applications per page
+  const limit = 7; // Show 7 applications per page
 
   useEffect(() => { fetchApps(); }, [page, statusFilter, search]);
 
