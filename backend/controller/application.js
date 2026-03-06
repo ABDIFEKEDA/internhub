@@ -3,24 +3,42 @@ const Application = require("../models/application");
 const path = require("path");
 const fs = require("fs");
 
-// Ensure uploads directory exists
 const uploadDir = path.join(__dirname, "../../uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// ==========================
-// University submits internship application
-// ==========================
+const ALLOWED_FILE_TYPES = ["application/pdf"];
+const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+const validateFile = (file, fieldName) => {
+  if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
+    throw new Error(`${fieldName} must be a PDF file`);
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error(`${fieldName} must be less than 2MB`);
+  }
+};
+
+const saveFile = async (file, prefix) => {
+  const extension = path.extname(file.name);
+  const fileName = `${prefix}_${uuidv4()}${extension}`;
+  const filePath = path.join(uploadDir, fileName);
+  await file.mv(filePath);
+  return `/uploads/${fileName}`;
+};
+
 exports.applyInternship = async (req, res) => {
+  let cvUrl;
+  let resumeUrl;
+
   try {
-    // Check authentication
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Not authorized" });
     }
 
     const universityId = req.user.id;
-    
+
     const {
       first_name,
       last_name,
@@ -32,72 +50,45 @@ exports.applyInternship = async (req, res) => {
       company_id
     } = req.body;
 
-    // Validate required fields
-    if (!first_name || !last_name || !email || !company_id) {
-      return res.status(400).json({ message: "Missing required fields" });
+    const requiredFields = {
+      first_name,
+      last_name,
+      email,
+      company_id,
+      department,
+      academic_year,
+      github_link,
+      linkedin_link
+    };
+
+    const missingFields = Object.entries(requiredFields)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(", ")}`
+      });
     }
 
-    if (!department || !academic_year) {
-      return res.status(400).json({ message: "Department and academic year are required" });
+    if (!req.files || !req.files.cv || !req.files.resume) {
+      return res.status(400).json({
+        message: "Both CV and Resume files are required"
+      });
     }
 
-    if (!github_link || !linkedin_link) {
-      return res.status(400).json({ message: "GitHub and LinkedIn links are required" });
-    }
+    validateFile(req.files.cv, "CV");
+    validateFile(req.files.resume, "Resume");
 
-    // Handle file uploads
-    let cvUrl = null;
-    let resumeUrl = null;
-
-    // Process CV file
-    if (req.files && req.files.cv) {
-      const cvFile = req.files.cv;
-      const cvExtension = path.extname(cvFile.name);
-      const cvFileName = `cv_${uuidv4()}${cvExtension}`;
-      const cvPath = path.join(uploadDir, cvFileName);
-      
-      if (cvFile.mimetype !== 'application/pdf') {
-        return res.status(400).json({ message: "CV must be a PDF file" });
-      }
-      
-      if (cvFile.size > 2 * 1024 * 1024) {
-        return res.status(400).json({ message: "CV must be less than 2MB" });
-      }
-      
-      await cvFile.mv(cvPath);
-      cvUrl = `/uploads/${cvFileName}`;
-    } else {
-      return res.status(400).json({ message: "CV file is required" });
-    }
-
-    // Process Resume file
-    if (req.files && req.files.resume) {
-      const resumeFile = req.files.resume;
-      const resumeExtension = path.extname(resumeFile.name);
-      const resumeFileName = `resume_${uuidv4()}${resumeExtension}`;
-      const resumePath = path.join(uploadDir, resumeFileName);
-      
-      if (resumeFile.mimetype !== 'application/pdf') {
-        return res.status(400).json({ message: "Resume must be a PDF file" });
-      }
-      
-      if (resumeFile.size > 2 * 1024 * 1024) {
-        return res.status(400).json({ message: "Resume must be less than 2MB" });
-      }
-      
-      await resumeFile.mv(resumePath);
-      resumeUrl = `/uploads/${resumeFileName}`;
-    } else {
-      return res.status(400).json({ message: "Resume file is required" });
-    }
+    cvUrl = await saveFile(req.files.cv, "cv");
+    resumeUrl = await saveFile(req.files.resume, "resume");
 
     const applicationId = uuidv4();
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date();
 
-    // ✅ Insert into universityapplications
-    const universityAppId = uuidv4();
-    await Application.createUniversityApplication({
-      id: universityAppId,
+    // Create in universityapplications table
+    await Application.createApplication({
+      id: uuidv4(),
       application_id: applicationId,
       university_id: universityId,
       company_id,
@@ -110,33 +101,28 @@ exports.applyInternship = async (req, res) => {
       linkedin_link,
       cv_url: cvUrl,
       resume_url: resumeUrl,
-      status: "PENDING",
+      status: "pending",
       created_at: timestamp
     });
 
-    // ✅ Try to insert into companyapplications (don't fail if it doesn't work)
-    try {
-      await Application.createCompanyApplication({
-        id: uuidv4(),
-        application_id: applicationId,
-        university_id: universityId,
-        company_id,
-        first_name,
-        last_name,
-        department,
-        academic_year,
-        email,
-        github_link,
-        linkedin_link,
-        cv_url: cvUrl,
-        resume_url: resumeUrl,
-        status: "PENDING",
-        created_at: timestamp
-      });
-      console.log("Company application created successfully");
-    } catch (companyErr) {
-      console.error("⚠️ Company application insert failed (non-critical):", companyErr.message);
-    }
+    // Also create in companyapplications table
+    await Application.createCompanyApplication({
+      id: uuidv4(),
+      application_id: applicationId,
+      university_id: universityId,
+      company_id,
+      first_name,
+      last_name,
+      department,
+      academic_year,
+      email,
+      github_link,
+      linkedin_link,
+      cv_url: cvUrl,
+      resume_url: resumeUrl,
+      status: "pending",
+      created_at: timestamp
+    });
 
     res.status(201).json({
       message: "Application submitted successfully",
@@ -146,17 +132,25 @@ exports.applyInternship = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(" APPLICATION SUBMISSION ERROR:", err);
-    res.status(500).json({ 
-      message: "Server error during application submission", 
-      error: err.message 
+
+    if (cvUrl) {
+      const cvPath = path.join(uploadDir, path.basename(cvUrl));
+      if (fs.existsSync(cvPath)) fs.unlinkSync(cvPath);
+    }
+
+    if (resumeUrl) {
+      const resumePath = path.join(uploadDir, path.basename(resumeUrl));
+      if (fs.existsSync(resumePath)) fs.unlinkSync(resumePath);
+    }
+
+    console.error("APPLICATION SUBMISSION ERROR:", err);
+    res.status(500).json({
+      message: "Server error during application submission",
+      error: err.message
     });
   }
 };
 
-// ==========================
-// University views own applications
-// ==========================
 exports.getUniversityApplications = async (req, res) => {
   try {
     if (!req.user || !req.user.id) {
@@ -170,8 +164,11 @@ exports.getUniversityApplications = async (req, res) => {
       req.user.id,
       { limit, offset, status }
     );
-    
-    const total = await Application.getApplicationsCountByUniversity(req.user.id, status);
+
+    const total = await Application.getApplicationsCountByUniversity(
+      req.user.id,
+      status
+    );
 
     res.json({
       applications,
@@ -182,12 +179,12 @@ exports.getUniversityApplications = async (req, res) => {
         pages: Math.ceil(total / limit)
       }
     });
+
   } catch (err) {
     console.error("UNIVERSITY APPLICATIONS ERROR:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
 
 exports.getCompanyApplications = async (req, res) => {
   try {
@@ -202,8 +199,11 @@ exports.getCompanyApplications = async (req, res) => {
       req.user.id,
       { limit, offset, status }
     );
-    
-    const total = await Application.getApplicationsCountByCompany(req.user.id, status);
+
+    const total = await Application.getApplicationsCountByCompany(
+      req.user.id,
+      status
+    );
 
     res.json({
       applications,
@@ -214,12 +214,12 @@ exports.getCompanyApplications = async (req, res) => {
         pages: Math.ceil(total / limit)
       }
     });
+
   } catch (err) {
     console.error("COMPANY APPLICATIONS ERROR:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-
 
 exports.reviewApplication = async (req, res) => {
   try {
@@ -230,34 +230,37 @@ exports.reviewApplication = async (req, res) => {
     const { status, feedback } = req.body;
     const applicationId = req.params.id;
 
-    if (!status || !["ACCEPTED", "REJECTED", "UNDER_REVIEW"].includes(status.toUpperCase())) {
-      return res.status(400).json({ message: "Invalid status. Must be ACCEPTED, REJECTED, or UNDER_REVIEW" });
+    const validStatuses = ["accepted", "rejected", "under_review", "pending", "withdrawn"];
+    const normalizedStatus = status?.toLowerCase();
+
+    if (!normalizedStatus || !validStatuses.includes(normalizedStatus)) {
+      return res.status(400).json({
+        message: "Invalid status. Must be one of: " + validStatuses.join(", ")
+      });
     }
 
-    // ✅ FIX: Use getApplicationById instead of getUniversityApplicationById
     const application = await Application.getApplicationById(applicationId);
+
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    // // Verify that this company has permission to review this application
-    // if (application.company_id !== req.user.id) {
-    //   return res.status(403).json({ message: "You don't have permission to review this application" });
-    // }
+    if (application.company_id !== req.user.id) {
+      return res.status(403).json({
+        message: "You don't have permission to review this application"
+      });
+    }
 
-    // Update status in BOTH tables
-    await Application.updateStatus(
-      applicationId, 
-      status.toUpperCase(),
+    const updatedApplication = await Application.updateStatus(
+      applicationId,
+      normalizedStatus,
       feedback,
       req.user.id
     );
 
-    res.json({ 
-      message: `Application ${status.toUpperCase()}`,
-      application_id: applicationId,
-      status: status.toUpperCase(),
-      updated_at: new Date().toISOString()
+    res.json({
+      message: `Application ${normalizedStatus}`,
+      application: updatedApplication
     });
 
   } catch (err) {
@@ -266,9 +269,6 @@ exports.reviewApplication = async (req, res) => {
   }
 };
 
-// ==========================
-// Get single application by ID
-// ==========================
 exports.getApplicationById = async (req, res) => {
   try {
     if (!req.user || !req.user.id) {
@@ -276,17 +276,19 @@ exports.getApplicationById = async (req, res) => {
     }
 
     const applicationId = req.params.id;
-    
-    // ✅ FIX: Use getApplicationById from model
     const application = await Application.getApplicationById(applicationId);
 
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
     }
 
-    // Check if user has permission to view this application
-    if (application.university_id !== req.user.id && application.company_id !== req.user.id) {
-      return res.status(403).json({ message: "You don't have permission to view this application" });
+    if (
+      application.university_id !== req.user.id &&
+      application.company_id !== req.user.id
+    ) {
+      return res.status(403).json({
+        message: "You don't have permission to view this application"
+      });
     }
 
     res.json(application);
@@ -297,27 +299,57 @@ exports.getApplicationById = async (req, res) => {
   }
 };
 
-// ==========================
-// Download CV/Resume file
-// ==========================
-exports.downloadFile = async (req, res) => {
+exports.withdrawApplication = async (req, res) => {
   try {
-    const fileName = req.params.filename;
-    const filePath = path.join(uploadDir, fileName);
-
-    const normalizedPath = path.normalize(filePath);
-    if (!normalizedPath.startsWith(uploadDir)) {
-      return res.status(403).json({ message: "Access denied" });
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Not authorized" });
     }
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "File not found" });
+    const applicationId = req.params.id;
+    const application = await Application.getApplicationById(applicationId);
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
     }
 
-    res.download(filePath);
+    if (application.university_id !== req.user.id) {
+      return res.status(403).json({
+        message: "You don't have permission to withdraw this application"
+      });
+    }
+
+    if (application.status !== "pending") {
+      return res.status(400).json({
+        message: "Can only withdraw applications with 'pending' status"
+      });
+    }
+
+    await Application.updateStatus(
+      applicationId,
+      "withdrawn",
+      "Application withdrawn by university",
+      req.user.id
+    );
+
+    res.json({ message: "Application withdrawn successfully" });
 
   } catch (err) {
-    console.error("FILE DOWNLOAD ERROR:", err);
+    console.error("WITHDRAW APPLICATION ERROR:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+exports.getCompanyStats = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const stats = await Application.getCompanyStats(req.user.id);
+    res.json(stats);
+
+  } catch (err) {
+    console.error("GET COMPANY STATS ERROR:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };

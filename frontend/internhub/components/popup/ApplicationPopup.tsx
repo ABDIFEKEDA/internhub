@@ -166,17 +166,18 @@ export default function ApplyInternshipDialog({
 
       onSubmit(application);
       
+      // Reset form BEFORE showing success message
+      const form = e.currentTarget;
+      form.reset();
+      setCvFileName("");
+      setResumeFileName("");
+      
       setSubmittedData({
         studentName: `${formData.get("first_name")} ${formData.get("last_name")}`,
         applicationId: data.application_id
       });
       
       setIsSubmitted(true);
-      
-      const form = e.currentTarget;
-      form.reset();
-      setCvFileName("");
-      setResumeFileName("");
       
     } catch (error) {
       console.error("Application submission error:", error);

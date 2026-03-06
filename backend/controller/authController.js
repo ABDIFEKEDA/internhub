@@ -83,7 +83,14 @@ exports.login = async (req, res) => {
       role: user.role,
     })
 
-    return res.json({ token, role: user.role })
+    return res.json({ 
+      token, 
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    })
   } catch (error) {
     console.error("LOGIN ERROR:", error)
     return res.status(500).json({ message: "Server error" })

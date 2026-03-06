@@ -19,6 +19,14 @@ ApplicationRouter.get(
   controller.getUniversityApplications
 );
 
+// Stats endpoint MUST come before parameterized routes
+ApplicationRouter.get(
+  "/company/stats",
+  protect,
+  restrictTo("company"),
+  controller.getCompanyStats
+);
+
 ApplicationRouter.get(
   "/company",
   protect,
@@ -33,11 +41,12 @@ ApplicationRouter.patch(
   controller.reviewApplication
 );
 
-// ✅ Add this for file downloads
-ApplicationRouter.get(
-  "/download/:filename",
+// Add review endpoint (alias for status update)
+ApplicationRouter.put(
+  "/:id/review",
   protect,
-  controller.downloadFile
+  restrictTo("company"),
+  controller.reviewApplication
 );
 
 module.exports = ApplicationRouter;

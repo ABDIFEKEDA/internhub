@@ -6,12 +6,13 @@ const authRoutes = require("./routes/authRouter");
 const applicationRoutes = require("./routes/application");
 const path = require('path');
 const fileUpload = require('express-fileupload');
+const { initAllTables } = require("./dbSetup/databaseSql.js");
 
 const app = express();
 
 // ✅ FIX 1: CORS should be first and only once
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "http://localhost:3001"],
   credentials: true,
 }));
 
@@ -44,4 +45,8 @@ app.get("/api/protected", protect, restrictTo("admin"), (req, res) => {
 app.use((req, res) => res.status(404).json({ message: "Endpoint not found" }));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+initAllTables().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+});

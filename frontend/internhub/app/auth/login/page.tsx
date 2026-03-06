@@ -15,7 +15,7 @@ export default function LoginPage() {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }), // ✅ no role
+        body: JSON.stringify({ email, password }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -24,7 +24,16 @@ export default function LoginPage() {
       }
       // Save token in localStorage
       localStorage.setItem("token", data.token)
-      router.push("/dashboard/university") // Redirect to dashboard after login
+      
+      // Redirect based on user role
+      const userRole = data.user?.role || "university"
+      if (userRole === "company") {
+        router.push("/dashboard/company")
+      } else if (userRole === "university") {
+        router.push("/dashboard/university")
+      } else {
+        router.push("/dashboard/university") // default
+      }
     } catch {
       setError("Something went wrong")
     }
