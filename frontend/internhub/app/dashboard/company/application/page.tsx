@@ -65,7 +65,7 @@ export default function CompanyApplicationsPage() {
     rejected: 0
   })
 
-  const itemsPerPage = 10
+  const itemsPerPage = 7
 
   // Fetch applications
   useEffect(() => {
