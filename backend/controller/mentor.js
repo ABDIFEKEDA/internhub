@@ -165,6 +165,110 @@ const getAssignedInterns = async (req, res) => {
   }
 };
 
+// Get all assigned interns (for all mentors)
+const getAllAssignedInterns = async (req, res) => {
+  try {
+    const interns = await mentorModel.getAllAssignedInterns();
+    
+    res.status(200).json({
+      success: true,
+      interns
+    });
+  } catch (error) {
+    console.error("Error fetching all assigned interns:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch assigned interns",
+      error: error.message
+    });
+  }
+};
+
+// Assign project to intern
+const assignProject = async (req, res) => {
+  try {
+    const projectData = req.body;
+    const project = await mentorModel.assignProject(projectData);
+    
+    res.status(201).json({
+      success: true,
+      message: "Project assigned successfully",
+      project
+    });
+  } catch (error) {
+    console.error("Error assigning project:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to assign project",
+      error: error.message
+    });
+  }
+};
+
+// Get projects for an intern
+const getInternProjects = async (req, res) => {
+  try {
+    const { assignmentId } = req.params;
+    console.log('=== GET PROJECTS REQUEST ===');
+    console.log('Assignment ID from params:', assignmentId);
+    console.log('Assignment ID type:', typeof assignmentId);
+    console.log('User from token:', req.user);
+    
+    if (!assignmentId) {
+      console.error('No assignment ID provided');
+      return res.status(400).json({
+        success: false,
+        message: "Assignment ID is required"
+      });
+    }
+    
+    console.log('Calling model.getInternProjects...');
+    const projects = await mentorModel.getInternProjects(assignmentId);
+    console.log('Projects found:', projects.length);
+    console.log('=== REQUEST SUCCESSFUL ===');
+    
+    res.status(200).json({
+      success: true,
+      projects
+    });
+  } catch (error) {
+    console.error("=== ERROR IN GET PROJECTS ===");
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    console.error("Error name:", error.name);
+    console.error("Full error:", error);
+    console.error("=== END ERROR ===");
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch projects",
+      error: error.message,
+      details: error.stack
+    });
+  }
+};
+
+// Update project status
+const updateProjectStatus = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { status, progress } = req.body;
+    const project = await mentorModel.updateProjectStatus(projectId, status, progress);
+    
+    res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      project
+    });
+  } catch (error) {
+    console.error("Error updating project:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update project",
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getMentorsByCompany,
   getMentorById,
@@ -172,5 +276,9 @@ module.exports = {
   updateMentor,
   deleteMentor,
   assignIntern,
-  getAssignedInterns
+  getAssignedInterns,
+  getAllAssignedInterns,
+  assignProject,
+  getInternProjects,
+  updateProjectStatus
 };

@@ -75,12 +75,70 @@ const assignIntern = async (assignmentData) => {
 // Get assigned interns for a mentor
 const getAssignedInterns = async (mentorId) => {
   const query = `
-    SELECT * FROM public.mentor_assignments
-    WHERE mentor_id = $1
-    ORDER BY assigned_date DESC
+    SELECT 
+      ma.*,
+      m.first_name as mentor_first_name,
+      m.last_name as mentor_last_name
+    FROM public.mentor_assignments ma
+    LEFT JOIN public.mentors m ON ma.mentor_id = m.id
+    WHERE ma.mentor_id = $1
+    ORDER BY ma.assigned_date DESC
   `;
   const result = await db.query(query, [mentorId]);
   return result.rows;
+};
+
+// Get all assigned interns (for all mentors)
+const getAllAssignedInterns = async () => {
+  const query = `
+    SELECT 
+      ma.*,
+      m.first_name as mentor_first_name,
+      m.last_name as mentor_last_name
+    FROM public.mentor_assignments ma
+    LEFT JOIN public.mentors m ON ma.mentor_id = m.id
+    WHERE ma.status = 'active'
+    ORDER BY ma.assigned_date DESC
+  `;
+  const result = await db.query(query);
+  return result.rows;
+};
+
+// Assign project to intern
+const assignProject = async (projectData) => {
+  const { assignment_id, project_title, project_description, deadline, status } = projectData;
+  
+  const query = `
+    INSERT INTO public.intern_projects (assignment_id, project_title, project_description, deadline, status)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING *
+  `;
+  
+  const result = await db.query(query, [assignment_id, project_title, project_description, deadline, status || 'assigned']);
+  return result.rows[0];
+};
+
+// Get projects for an intern
+const getInternProjects = async (assignmentId) => {
+  const query = `
+    SELECT * FROM public.intern_projects
+    WHERE assignment_id = $1
+    ORDER BY created_at DESC
+  `;
+  const result = await db.query(query, [assignmentId]);
+  return result.rows;
+};
+
+// Update project status
+const updateProjectStatus = async (projectId, status, progress) => {
+  const query = `
+    UPDATE public.intern_projects
+    SET status = $1, progress = $2, updated_at = CURRENT_TIMESTAMP
+    WHERE id = $3
+    RETURNING *
+  `;
+  const result = await db.query(query, [status, progress, projectId]);
+  return result.rows[0];
 };
 
 module.exports = {
@@ -90,5 +148,9 @@ module.exports = {
   updateMentor,
   deleteMentor,
   assignIntern,
-  getAssignedInterns
+  getAssignedInterns,
+  getAllAssignedInterns,
+  assignProject,
+  getInternProjects,
+  updateProjectStatus
 };
