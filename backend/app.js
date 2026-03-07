@@ -33,6 +33,20 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Debug endpoint (no auth required)
+app.get('/api/debug/projects/:assignmentId', async (req, res) => {
+  console.log('=== DEBUG ENDPOINT HIT ===');
+  console.log('Assignment ID:', req.params.assignmentId);
+  try {
+    const mentorModel = require('./models/mentor');
+    const projects = await mentorModel.getInternProjects(req.params.assignmentId);
+    res.json({ success: true, projects, count: projects.length });
+  } catch (error) {
+    console.error('Debug endpoint error:', error);
+    res.status(500).json({ success: false, error: error.message, stack: error.stack });
+  }
+});
+
 // ✅ FIX 4: Routes should be after all middleware
 app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
