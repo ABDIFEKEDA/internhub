@@ -4,6 +4,8 @@ const cors = require("cors");
 const db = require("./config/dbConnection.js");
 const authRoutes = require("./routes/authRouter");
 const applicationRoutes = require("./routes/application");
+const advisorRoutes = require("./routes/advisor");
+const mentorRoutes = require("./routes/mentor");
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const { initAllTables } = require("./dbSetup/databaseSql.js");
@@ -34,6 +36,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // ✅ FIX 4: Routes should be after all middleware
 app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/advisors", advisorRoutes);
+app.use("/api/mentors", mentorRoutes);
 
 // Example protected route
 const { protect, restrictTo } = require("./middleware/authmidlleware");
