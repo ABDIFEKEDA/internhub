@@ -150,61 +150,61 @@ export default function ApplicationsPage() {
   return (
     <div className="flex bg-gray-50 min-h-screen">
       <UniversitySidebar />
-      <div className="flex-1 p-8 space-y-6">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Student Applications</h1>
-            <p className="text-gray-500 mt-1">Manage and review internship applications</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Student Applications</h1>
+            <p className="text-sm sm:text-base text-gray-500 mt-1">Manage and review internship applications</p>
           </div>
           <ApplyInternshipDialog onSubmit={addApplication} />
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
           <Card className="border-none shadow-sm">
-            <CardContent className="p-6 flex justify-between">
+            <CardContent className="p-4 sm:p-6 flex justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">Total</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Total</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
               </div>
-              <div className="p-3 bg-blue-50 rounded-xl">
+              <div className="hidden sm:flex p-3 bg-blue-50 rounded-xl">
                 <Users className="h-6 w-6 text-blue-600" />
               </div>
             </CardContent>
           </Card>
           
           <Card className="border-none shadow-sm">
-            <CardContent className="p-6 flex justify-between">
+            <CardContent className="p-4 sm:p-6 flex justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">Accepted</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.accepted}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Accepted</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.accepted}</p>
               </div>
-              <div className="p-3 bg-emerald-50 rounded-xl">
+              <div className="hidden sm:flex p-3 bg-emerald-50 rounded-xl">
                 <CheckCircle className="h-6 w-6 text-emerald-600" />
               </div>
             </CardContent>
           </Card>
           
           <Card className="border-none shadow-sm">
-            <CardContent className="p-6 flex justify-between">
+            <CardContent className="p-4 sm:p-6 flex justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">Pending</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.pending}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Pending</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.pending}</p>
               </div>
-              <div className="p-3 bg-amber-50 rounded-xl">
+              <div className="hidden sm:flex p-3 bg-amber-50 rounded-xl">
                 <Clock className="h-6 w-6 text-amber-600" />
               </div>
             </CardContent>
           </Card>
           
           <Card className="border-none shadow-sm">
-            <CardContent className="p-6 flex justify-between">
+            <CardContent className="p-4 sm:p-6 flex justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">Rejected</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{stats.rejected}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Rejected</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.rejected}</p>
               </div>
-              <div className="p-3 bg-rose-50 rounded-xl">
+              <div className="hidden sm:flex p-3 bg-rose-50 rounded-xl">
                 <XCircle className="h-6 w-6 text-rose-600" />
               </div>
             </CardContent>
@@ -294,19 +294,21 @@ export default function ApplicationsPage() {
           </CardContent>
         </Card>
 
-        {/* Loading/Error/Table */}
+        {/* Loading/Error/Table/Cards */}
         {loading ? (
-          <Card><CardContent className="p-12 flex flex-col items-center"><Loader2 className="h-8 w-8 animate-spin text-orange-500 mb-4" /><p>Loading...</p></CardContent></Card>
+          <Card><CardContent className="p-8 sm:p-12 flex flex-col items-center"><Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-orange-500 mb-4" /><p className="text-sm sm:text-base">Loading...</p></CardContent></Card>
         ) : error ? (
-          <Card><CardContent className="p-12 flex flex-col items-center">
-            <AlertCircle className="h-8 w-8 text-red-500 mb-4" />
-            <p className="text-lg font-semibold mb-2">Failed to load</p>
-            <p className="text-gray-500 mb-4">{error}</p>
+          <Card><CardContent className="p-8 sm:p-12 flex flex-col items-center">
+            <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-500 mb-4" />
+            <p className="text-base sm:text-lg font-semibold mb-2">Failed to load</p>
+            <p className="text-sm sm:text-base text-gray-500 mb-4">{error}</p>
             <Button onClick={fetchApps} className="bg-orange-500">Try Again</Button>
           </CardContent></Card>
         ) : (
-          <Card className="border-none shadow-sm overflow-hidden">
-            <Table>
+          <>
+            {/* Desktop Table View */}
+            <Card className="hidden lg:block border-none shadow-sm overflow-hidden">
+              <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
                   {/* Added Serial Number column */}
@@ -381,49 +383,132 @@ export default function ApplicationsPage() {
               </div>
             )}
           </Card>
+
+            {/* Mobile Card View */}
+            <div className="lg:hidden space-y-3">
+              {apps.length === 0 ? (
+                <Card>
+                  <CardContent className="p-8 flex flex-col items-center">
+                    <Users className="h-8 w-8 text-gray-300 mb-2" />
+                    <p className="text-gray-500 text-sm">No applications found</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                apps.map((app, index) => (
+                  <Card key={app.id} className="border-blue-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-sm font-bold">
+                              {app.firstName[0]}{app.lastName[0]}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-gray-900 text-sm">{app.firstName} {app.lastName}</p>
+                            <p className="text-xs text-gray-500 truncate max-w-[150px]">{app.email}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-semibold text-blue-600">#{getSerialNumber(index)}</span>
+                      </div>
+                      
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Department</span>
+                          <span className="font-medium text-gray-900 text-xs">{app.fieldOfStudy}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-500">Status</span>
+                          {getStatusBadge(app.status)}
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        onClick={() => viewApplication(app)} 
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        size="sm"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />View Details
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+              
+              {/* Mobile Pagination */}
+              {totalPages > 1 && (
+                <Card className="border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </>
         )}
 
-        {/* View Modal */}
+        {/* View Modal - Mobile Optimized */}
         <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden rounded-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden rounded-2xl w-[95vw] sm:w-full">
             <DialogHeader className="sr-only">
               <DialogTitle>Application Details</DialogTitle>
             </DialogHeader>
             {selectedApp && (
               <div className="flex flex-col max-h-[90vh] overflow-y-auto">
 
-                {/* Academic Information */}
-                <div className="p-8 bg-white border-b">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                {/* Student Header - Simplified on Mobile */}
+                <div className="p-4 sm:p-6 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                  <h3 className="text-lg sm:text-xl font-bold">{selectedApp.firstName} {selectedApp.lastName}</h3>
+                  <p className="text-sm text-blue-100 mt-1">{selectedApp.email}</p>
+                  <div className="mt-2">{getStatusBadge(selectedApp.status)}</div>
+                </div>
+
+                {/* Academic Information - Simplified on Mobile */}
+                <div className="p-4 sm:p-6 bg-white border-b">
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 hidden sm:flex items-center gap-2">
                     <GraduationCap className="h-5 w-5 text-blue-600" />
                     Academic Information
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-500 mb-1">Department</p>
-                      <p className="font-semibold text-gray-900">{selectedApp.fieldOfStudy}</p>
+                  </h4>
+                  <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Department</p>
+                      <p className="font-semibold text-gray-900 text-sm">{selectedApp.fieldOfStudy}</p>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-sm text-gray-500 mb-1">Academic Year</p>
-                      <p className="font-semibold text-gray-900">{selectedApp.year}</p>
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Academic Year</p>
+                      <p className="font-semibold text-gray-900 text-sm">{selectedApp.year}</p>
                     </div>
+                  </div>
+                  <div className="mt-3 p-3 bg-gray-50 rounded-lg sm:hidden">
+                    <p className="text-xs text-gray-500 mb-1">Submitted</p>
+                    <p className="font-semibold text-gray-900 text-sm">{formatDate(selectedApp.submittedAt)}</p>
                   </div>
                 </div>
 
-                {/* Professional Profiles */}
+                {/* Professional Profiles - Hidden on Mobile */}
                 {(selectedApp.github || selectedApp.linkedin) && (
-                  <div className="p-8 bg-white border-b">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">Professional Profiles</h3>
-                    <div className="flex gap-4">
+                  <div className="p-4 sm:p-6 bg-white border-b hidden sm:block">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">Professional Profiles</h4>
+                    <div className="flex gap-3">
                       {selectedApp.github && (
                         <a 
                           href={selectedApp.github} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition"
+                          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition text-sm"
                         >
                           <Github className="h-4 w-4" />
-                          GitHub Profile
+                          GitHub
                         </a>
                       )}
                       {selectedApp.linkedin && (
@@ -431,42 +516,27 @@ export default function ApplicationsPage() {
                           href={selectedApp.linkedin} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
                         >
                           <Linkedin className="h-4 w-4" />
-                          LinkedIn Profile
+                          LinkedIn
                         </a>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Application Status */}
-                <div className="p-8 bg-white border-b">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">Application Status</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-500 mb-2">Current Status</p>
-                      {getStatusBadge(selectedApp.status)}
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500 mb-2">Submitted On</p>
-                      <p className="font-semibold text-gray-900">{formatDate(selectedApp.submittedAt)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Download Documents Section */}
-                <div className="p-8 bg-white">
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">Download Documents</h3>
+                {/* Download Documents Section - Simplified on Mobile */}
+                <div className="p-4 sm:p-6 bg-white">
+                  <h4 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 hidden sm:block">Download Documents</h4>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {selectedApp.cv && (
                       <Button 
                         onClick={() => downloadFile(selectedApp.cv as string, `${selectedApp.firstName}_${selectedApp.lastName}_CV.pdf`)} 
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-4 text-lg"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 sm:py-4 text-sm sm:text-base"
                       >
-                        <Download className="h-5 w-5 mr-2" />
+                        <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                         Download CV
                       </Button>
                     )}
@@ -474,17 +544,17 @@ export default function ApplicationsPage() {
                     {selectedApp.resume && (
                       <Button 
                         onClick={() => downloadFile(selectedApp.resume as string, `${selectedApp.firstName}_${selectedApp.lastName}_Resume.pdf`)} 
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 text-lg"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 sm:py-4 text-sm sm:text-base"
                       >
-                        <Download className="h-5 w-5 mr-2" />
+                        <Download className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                         Download Resume
                       </Button>
                     )}
                   </div>
                 </div>
 
-                <div className="px-8 py-4 bg-gray-50 border-t flex justify-end">
-                  <Button variant="outline" onClick={() => setIsViewOpen(false)} className="px-6 py-2">
+                <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t flex justify-end">
+                  <Button variant="outline" onClick={() => setIsViewOpen(false)} className="px-4 sm:px-6 py-2 text-sm">
                     Close
                   </Button>
                 </div>

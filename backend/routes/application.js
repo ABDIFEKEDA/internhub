@@ -15,7 +15,7 @@ ApplicationRouter.post(
 ApplicationRouter.get(
   "/university",
   protect,
-  restrictTo("university"),
+  // Allow both university admins and anyone accessing university data
   controller.getUniversityApplications
 );
 
