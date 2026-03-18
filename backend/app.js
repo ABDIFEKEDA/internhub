@@ -6,6 +6,8 @@ const authRoutes = require("./routes/authRouter");
 const applicationRoutes = require("./routes/application");
 const advisorRoutes = require("./routes/advisor");
 const mentorRoutes = require("./routes/mentor");
+const messageRoutes = require("./routes/message");
+const adminRoutes = require("./routes/admin");
 const path = require('path');
 const fileUpload = require('express-fileupload');
 const { initAllTables } = require("./dbSetup/databaseSql.js");
@@ -52,6 +54,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/advisors", advisorRoutes);
 app.use("/api/mentors", mentorRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Example protected route
 const { protect, restrictTo } = require("./middleware/authmidlleware");

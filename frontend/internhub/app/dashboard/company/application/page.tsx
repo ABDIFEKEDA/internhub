@@ -281,76 +281,65 @@ export default function CompanyApplicationsPage() {
   const statusOptions = ['ALL', 'PENDING', 'UNDER_REVIEW', 'SHORTLISTED', 'ACCEPTED', 'REJECTED']
 
   return (
-    <div className="flex min-h-screen bg-orange-50">
+    <div className="flex min-h-screen bg-blue-50">
       
       {/* Sidebar */}
       <CompanySidebar />
 
       {/* Main Content */}
-      <main className="flex-1 p-8 space-y-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8 w-full">
         
         {/* Page Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-orange-700 flex items-center gap-2">
-              <FileText className="h-8 w-8" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 flex items-center gap-2">
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8" />
               Applications Management
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Review and manage all internship applications
             </p>
           </div>
-          <button className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 flex items-center gap-2">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center">
             <Download className="h-4 w-4" />
             Export Report
           </button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
-          <Card className="border-orange-200">
-            <CardContent className="pt-6 text-center">
-              <p className="text-2xl font-bold text-orange-700">{stats.total}</p>
+        <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <Card className="border-blue-200">
+            <CardContent className="pt-4 sm:pt-6 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-blue-700">{stats.total}</p>
               <p className="text-xs text-gray-500">Total</p>
             </CardContent>
           </Card>
           <Card className="border-yellow-200 bg-yellow-50">
-            <CardContent className="pt-6 text-center">
-              <p className="text-2xl font-bold text-yellow-700">{stats.pending}</p>
+            <CardContent className="pt-4 sm:pt-6 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-yellow-700">{stats.pending}</p>
               <p className="text-xs text-gray-500">Pending</p>
             </CardContent>
           </Card>
-          <Card className="border-blue-200 bg-blue-50">
-            <CardContent className="pt-6 text-center">
-              <p className="text-2xl font-bold text-blue-700">{stats.under_review}</p>
-              <p className="text-xs text-gray-500">Under Review</p>
-            </CardContent>
-          </Card>
-          <Card className="border-purple-200 bg-purple-50">
-            <CardContent className="pt-6 text-center">
-              <p className="text-2xl font-bold text-purple-700">{stats.shortlisted}</p>
-              <p className="text-xs text-gray-500">Shortlisted</p>
-            </CardContent>
-          </Card>
+          
           <Card className="border-green-200 bg-green-50">
-            <CardContent className="pt-6 text-center">
-              <p className="text-2xl font-bold text-green-700">{stats.accepted}</p>
+            <CardContent className="pt-4 sm:pt-6 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-green-700">{stats.accepted}</p>
               <p className="text-xs text-gray-500">Accepted</p>
             </CardContent>
           </Card>
           <Card className="border-red-200 bg-red-50">
-            <CardContent className="pt-6 text-center">
-              <p className="text-2xl font-bold text-red-700">{stats.rejected}</p>
+            <CardContent className="pt-4 sm:pt-6 text-center">
+              <p className="text-xl sm:text-2xl font-bold text-red-700">{stats.rejected}</p>
               <p className="text-xs text-gray-500">Rejected</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters */}
-        <Card className="border-orange-200">
-          <CardContent className="pt-6">
-            <div className="flex flex-wrap gap-4">
-              <div className="flex-1 min-w-[200px]">
+        <Card className="border-blue-200">
+          <CardContent className="pt-4 sm:pt-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -358,7 +347,7 @@ export default function CompanyApplicationsPage() {
                     placeholder="Search by name or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-orange-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-10 pr-4 py-2 text-sm border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -366,7 +355,7 @@ export default function CompanyApplicationsPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-orange-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {statusOptions.map(status => (
                     <option key={status} value={status}>{status}</option>
@@ -375,7 +364,7 @@ export default function CompanyApplicationsPage() {
                 <select
                   value={departmentFilter}
                   onChange={(e) => setDepartmentFilter(e.target.value)}
-                  className="px-4 py-2 border border-orange-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="flex-1 sm:flex-none px-3 sm:px-4 py-2 text-sm border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {departments.map(dept => (
                     <option key={dept} value={dept}>{dept}</option>
@@ -387,7 +376,7 @@ export default function CompanyApplicationsPage() {
                     setStatusFilter("ALL")
                     setDepartmentFilter("ALL")
                   }}
-                  className="px-4 py-2 border border-orange-200 rounded-md hover:bg-orange-50"
+                  className="px-3 sm:px-4 py-2 text-sm border border-blue-200 rounded-md hover:bg-blue-50"
                 >
                   Clear
                 </button>
@@ -396,22 +385,22 @@ export default function CompanyApplicationsPage() {
           </CardContent>
         </Card>
 
-        {/* Applications Table */}
-        <Card className="border-orange-200">
+        {/* Applications Table - Desktop */}
+        <Card className="border-blue-200 hidden md:block">
           <CardHeader>
-            <CardTitle className="text-lg text-orange-700">Applications ({applications.length})</CardTitle>
+            <CardTitle className="text-base sm:text-lg text-blue-700">Applications ({applications.length})</CardTitle>
           </CardHeader>
           <CardContent>
             {loading ? (
               <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-700"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
               </div>
             ) : (
               <>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-orange-200">
+                      <tr className="border-b border-blue-200">
                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Applicant</th>
                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Department</th>
                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Year</th>
@@ -422,7 +411,7 @@ export default function CompanyApplicationsPage() {
                     </thead>
                     <tbody>
                       {applications.map((app) => (
-                        <tr key={app.id} className="border-b border-orange-100 hover:bg-orange-50">
+                        <tr key={app.id} className="border-b border-blue-100 hover:bg-blue-50">
                           <td className="py-3 px-4">
                             <div>
                               <p className="font-medium">{app.first_name} {app.last_name}</p>
@@ -442,7 +431,7 @@ export default function CompanyApplicationsPage() {
                                   setSelectedApplication(app)
                                   setShowDetailsModal(true)
                                 }}
-                                className="text-orange-600 hover:text-orange-800"
+                                className="text-blue-600 hover:text-blue-800"
                                 title="View Details"
                               >
                                 <Eye className="h-5 w-5" />
@@ -473,14 +462,14 @@ export default function CompanyApplicationsPage() {
                     <button
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
-                      className="px-3 py-1 border border-orange-200 rounded-md disabled:opacity-50"
+                      className="px-3 py-1 border border-blue-200 rounded-md disabled:opacity-50"
                     >
                       <ChevronLeft className="h-5 w-5" />
                     </button>
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1 border border-orange-200 rounded-md disabled:opacity-50"
+                      className="px-3 py-1 border border-blue-200 rounded-md disabled:opacity-50"
                     >
                       <ChevronRight className="h-5 w-5" />
                     </button>
@@ -491,117 +480,190 @@ export default function CompanyApplicationsPage() {
           </CardContent>
         </Card>
 
-        {/* Application Details Modal */}
+        {/* Applications Cards - Mobile */}
+        <div className="md:hidden space-y-4">
+          {loading ? (
+            <Card className="border-blue-200">
+              <CardContent className="p-8 flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-700"></div>
+              </CardContent>
+            </Card>
+          ) : applications.length === 0 ? (
+            <Card className="border-blue-200">
+              <CardContent className="p-8 text-center">
+                <p className="text-gray-500">No applications found</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {applications.map((app) => (
+                <Card key={app.id} className="border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">
+                            {app.first_name[0]}{app.last_name[0]}
+                          </span>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-sm truncate">{app.first_name} {app.last_name}</p>
+                          <p className="text-xs text-gray-500 truncate">{app.email}</p>
+                        </div>
+                      </div>
+                      {getStatusBadge(app.status)}
+                    </div>
+                    
+                    <div className="space-y-2 mb-3">
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <BookOpen className="h-3 w-3" />
+                        <span>{app.department}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Calendar className="h-3 w-3" />
+                        <span>{new Date(app.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setSelectedApplication(app)
+                        setShowDetailsModal(true)
+                      }}
+                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm flex items-center justify-center gap-2"
+                    >
+                      <Eye className="h-4 w-4" />
+                      View Details
+                    </button>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Mobile Pagination */}
+              <div className="flex justify-between items-center pt-2">
+                <p className="text-xs text-gray-500">
+                  Page {currentPage} of {totalPages}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 border border-blue-200 rounded-md disabled:opacity-50"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 border border-blue-200 rounded-md disabled:opacity-50"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Application Details Modal - Mobile Optimized */}
         {showDetailsModal && selectedApplication && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
             <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
+                {/* Header - Simplified on Mobile */}
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold text-orange-700">Application Details</h2>
+                  <h2 className="text-xl sm:text-2xl font-bold text-blue-700">Application Details</h2>
                   <button
                     onClick={() => {
                       setShowDetailsModal(false)
                       setSelectedApplication(null)
                       setFeedbackText("")
                     }}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500 hover:text-gray-700 text-2xl"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div className="space-y-6">
-                  {/* Personal Information */}
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-orange-700 mb-3 flex items-center gap-2">
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Student Header - Mobile Optimized */}
+                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 rounded-lg text-white">
+                    <h3 className="text-lg font-bold">{selectedApplication.first_name} {selectedApplication.last_name}</h3>
+                    <p className="text-sm text-blue-100 mt-1">{selectedApplication.email}</p>
+                    <div className="mt-2">{getStatusBadge(selectedApplication.status)}</div>
+                  </div>
+
+                  {/* Academic Info - Simplified on Mobile */}
+                  <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                    <h4 className="font-semibold text-blue-700 mb-3 text-sm sm:text-base hidden sm:flex items-center gap-2">
                       <User className="h-5 w-5" />
-                      Personal Information
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
+                      Academic Information
+                    </h4>
+                    <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
                       <div>
-                        <p className="text-sm text-gray-500">Full Name</p>
-                        <p className="font-medium">{selectedApplication.first_name} {selectedApplication.last_name}</p>
+                        <p className="text-xs text-gray-500">Department</p>
+                        <p className="font-medium text-sm">{selectedApplication.department}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Email</p>
-                        <p className="font-medium flex items-center gap-1">
-                          <Mail className="h-4 w-4 text-gray-400" />
-                          {selectedApplication.email}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Department</p>
-                        <p className="font-medium">{selectedApplication.department}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Academic Year</p>
-                        <p className="font-medium">{selectedApplication.academic_year}</p>
+                        <p className="text-xs text-gray-500">Academic Year</p>
+                        <p className="font-medium text-sm">{selectedApplication.academic_year}</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Links */}
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-orange-700 mb-3">Profile Links</h3>
+                  {/* Profile Links - Hidden on Mobile */}
+                  <div className="bg-blue-50 p-4 rounded-lg hidden sm:block">
+                    <h4 className="font-semibold text-blue-700 mb-3">Profile Links</h4>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Github className="h-5 w-5 text-gray-600" />
                         <a href={selectedApplication.github_link} target="_blank" rel="noopener noreferrer" 
-                           className="text-blue-600 hover:underline text-sm">
-                          {selectedApplication.github_link}
+                           className="text-blue-600 hover:underline text-sm truncate">
+                          GitHub Profile
                         </a>
                       </div>
                       <div className="flex items-center gap-2">
                         <Linkedin className="h-5 w-5 text-gray-600" />
                         <a href={selectedApplication.linkedin_link} target="_blank" rel="noopener noreferrer"
-                           className="text-blue-600 hover:underline text-sm">
-                          {selectedApplication.linkedin_link}
+                           className="text-blue-600 hover:underline text-sm truncate">
+                          LinkedIn Profile
                         </a>
                       </div>
                     </div>
                   </div>
 
-                  {/* Documents */}
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-orange-700 mb-3 flex items-center gap-2">
+                  {/* Documents - Simplified on Mobile */}
+                  <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                    <h4 className="font-semibold text-blue-700 mb-3 text-sm sm:text-base hidden sm:flex items-center gap-2">
                       <FileIcon className="h-5 w-5" />
                       Documents
-                    </h3>
+                    </h4>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span>CV</span>
-                        <button
-                          onClick={() => downloadFile(selectedApplication.cv_url, `CV_${selectedApplication.first_name}_${selectedApplication.last_name}.pdf`)}
-                          className="text-orange-600 hover:text-orange-800 text-sm flex items-center gap-1"
-                        >
-                          <Download className="h-4 w-4" />
-                          Download CV
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Resume</span>
-                        <button
-                          onClick={() => downloadFile(selectedApplication.resume_url, `Resume_${selectedApplication.first_name}_${selectedApplication.last_name}.pdf`)}
-                          className="text-orange-600 hover:text-orange-800 text-sm flex items-center gap-1"
-                        >
-                          <Download className="h-4 w-4" />
-                          Download Resume
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => downloadFile(selectedApplication.cv_url, `CV_${selectedApplication.first_name}_${selectedApplication.last_name}.pdf`)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download CV
+                      </button>
+                      <button
+                        onClick={() => downloadFile(selectedApplication.resume_url, `Resume_${selectedApplication.first_name}_${selectedApplication.last_name}.pdf`)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download Resume
+                      </button>
                     </div>
                   </div>
 
-                  {/* Status and Feedback */}
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <h3 className="font-semibold text-orange-700 mb-3">Application Status</h3>
-                    <div className="mb-4">
-                      {getStatusBadge(selectedApplication.status)}
-                    </div>
+                  {/* Status and Actions - Simplified on Mobile */}
+                  <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                    <h4 className="font-semibold text-blue-700 mb-3 text-sm sm:text-base hidden sm:block">Review & Actions</h4>
 
                     {selectedApplication.feedback && (
-                      <div className="mb-4 p-3 bg-white rounded border border-orange-200">
-                        <p className="text-sm font-medium text-gray-700">Feedback:</p>
-                        <p className="text-sm text-gray-600">{selectedApplication.feedback}</p>
+                      <div className="mb-3 p-3 bg-white rounded border border-blue-200">
+                        <p className="text-xs font-medium text-gray-700">Feedback:</p>
+                        <p className="text-xs text-gray-600">{selectedApplication.feedback}</p>
                       </div>
                     )}
 
@@ -610,41 +672,39 @@ export default function CompanyApplicationsPage() {
                         placeholder="Add feedback (optional)"
                         value={feedbackText}
                         onChange={(e) => setFeedbackText(e.target.value)}
-                        className="w-full px-3 py-2 border border-orange-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        rows={3}
+                        className="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        rows={2}
                       />
                       
-                      {/* Primary Action Buttons - Always Visible */}
-                      <div className="flex gap-3 flex-wrap">
-                        {/* Accept Button - Available for non-accepted applications */}
+                      {/* Primary Action Buttons - Stacked on Mobile */}
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         {selectedApplication.status !== 'ACCEPTED' && (
                           <button
                             onClick={() => updateApplicationStatus(selectedApplication.application_id, 'ACCEPTED')}
-                            className="flex-1 min-w-[200px] bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                            className="w-full bg-green-600 text-white px-4 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-green-700 flex items-center justify-center gap-2 text-sm"
                           >
-                            <CheckCircle className="h-5 w-5" />
-                            Accept Application
+                            <CheckCircle className="h-4 w-4" />
+                            Accept
                           </button>
                         )}
                         
-                        {/* Reject Button - Available for non-rejected applications */}
                         {selectedApplication.status !== 'REJECTED' && (
                           <button
                             onClick={() => updateApplicationStatus(selectedApplication.application_id, 'REJECTED')}
-                            className="flex-1 min-w-[200px] bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                            className="w-full bg-red-600 text-white px-4 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-red-700 flex items-center justify-center gap-2 text-sm"
                           >
-                            <XCircle className="h-5 w-5" />
-                            Reject Application
+                            <XCircle className="h-4 w-4" />
+                            Reject
                           </button>
                         )}
                       </div>
 
-                      {/* Secondary Action Buttons */}
-                      <div className="flex gap-2 flex-wrap pt-2 border-t border-orange-200">
+                      {/* Secondary Action Buttons - Hidden on Mobile */}
+                      <div className="hidden sm:flex gap-2 flex-wrap pt-2 border-t border-blue-200">
                         {selectedApplication.status === 'PENDING' && (
                           <button
                             onClick={() => updateApplicationStatus(selectedApplication.application_id, 'UNDER_REVIEW')}
-                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm"
                           >
                             <AlertCircle className="h-4 w-4" />
                             Start Review
@@ -654,7 +714,7 @@ export default function CompanyApplicationsPage() {
                         {selectedApplication.status === 'UNDER_REVIEW' && (
                           <button
                             onClick={() => updateApplicationStatus(selectedApplication.application_id, 'SHORTLISTED')}
-                            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2"
+                            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2 text-sm"
                           >
                             <Star className="h-4 w-4" />
                             Shortlist

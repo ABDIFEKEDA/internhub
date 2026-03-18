@@ -158,38 +158,38 @@ export default function AcceptedStudentsPage() {
   }, [searchTerm])
 
   return (
-    <div className="flex min-h-screen bg-orange-50">
+    <div className="flex min-h-screen bg-blue-50">
       <CompanySidebar />
 
-      <main className="flex-1 p-8 space-y-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8 w-full">
         {/* Page Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-orange-700 flex items-center gap-2">
-              <Users className="h-8 w-8" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-blue-700 flex items-center gap-2">
+              <Users className="h-6 w-6 sm:h-8 sm:w-8" />
               Accepted Students
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Manage accepted interns and assign advisors
             </p>
           </div>
-          <div className="bg-white px-6 py-3 rounded-lg shadow-md border border-orange-200">
-            <p className="text-sm text-gray-500">Total Accepted</p>
-            <p className="text-3xl font-bold text-orange-700">{students.length}</p>
+          <div className="bg-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-md border border-blue-200">
+            <p className="text-xs sm:text-sm text-gray-500">Total Accepted</p>
+            <p className="text-2xl sm:text-3xl font-bold text-blue-700">{students.length}</p>
           </div>
         </div>
 
         {/* Search Bar */}
-        <Card className="border-orange-200">
-          <CardContent className="pt-6">
+        <Card className="border-blue-200">
+          <CardContent className="pt-4 sm:pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search by name, email, or department..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </CardContent>
@@ -199,7 +199,7 @@ export default function AcceptedStudentsPage() {
         {loading ? (
           <Card>
             <CardContent className="p-12 flex flex-col items-center">
-              <Loader2 className="h-8 w-8 animate-spin text-orange-500 mb-4" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500 mb-4" />
               <p>Loading accepted students...</p>
             </CardContent>
           </Card>
@@ -212,11 +212,11 @@ export default function AcceptedStudentsPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="border-orange-200">
+          <Card className="border-blue-200">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-orange-50 border-b border-orange-200">
+                  <thead className="bg-blue-50 border-b border-blue-200">
                     <tr>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Student</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Email</th>
@@ -228,10 +228,10 @@ export default function AcceptedStudentsPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {currentStudents.map((student) => (
-                      <tr key={student.application_id} className="hover:bg-orange-50/50 transition-colors">
+                      <tr key={student.application_id} className="hover:bg-blue-50/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
                               <span className="text-white text-sm font-bold">
                                 {student.first_name[0]}{student.last_name[0]}
                               </span>
@@ -268,8 +268,8 @@ export default function AcceptedStudentsPage() {
                         <td className="px-6 py-4">
                           {student.advisor ? (
                             <div className="flex items-center gap-2">
-                              <UserCheck className="h-4 w-4 text-orange-600" />
-                              <span className="text-sm font-medium text-orange-700">{student.advisor}</span>
+                              <UserCheck className="h-4 w-4 text-blue-600" />
+                              <span className="text-sm font-medium text-blue-700">{student.advisor}</span>
                             </div>
                           ) : (
                             <button
@@ -277,7 +277,7 @@ export default function AcceptedStudentsPage() {
                                 setSelectedStudent(student)
                                 setShowAssignModal(true)
                               }}
-                              className="text-orange-600 hover:text-orange-700 text-sm font-medium flex items-center gap-1"
+                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
                             >
                               <UserPlus className="h-4 w-4" />
                               Assign
@@ -291,7 +291,7 @@ export default function AcceptedStudentsPage() {
                                 setSelectedStudent(student)
                                 setShowDetailsModal(true)
                               }}
-                              className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 flex items-center gap-2 text-sm font-medium shadow-sm hover:shadow-md transition-all"
+                              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm font-medium shadow-sm hover:shadow-md transition-all"
                             >
                               <Users className="h-4 w-4" />
                               Details
@@ -326,7 +326,7 @@ export default function AcceptedStudentsPage() {
                       <button
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent text-sm font-medium text-gray-700 transition-colors"
+                        className="px-4 py-2 border border-blue-300 rounded-lg hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent text-sm font-medium text-gray-700 transition-colors"
                       >
                         ← Previous
                       </button>
@@ -338,8 +338,8 @@ export default function AcceptedStudentsPage() {
                             onClick={() => setCurrentPage(page)}
                             className={`min-w-[40px] h-10 rounded-lg text-sm font-medium transition-all ${
                               currentPage === page
-                                ? 'bg-orange-600 text-white shadow-md'
-                                : 'border border-orange-200 text-gray-700 hover:bg-orange-50'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'border border-blue-200 text-gray-700 hover:bg-blue-50'
                             }`}
                           >
                             {page}
@@ -350,7 +350,7 @@ export default function AcceptedStudentsPage() {
                       <button
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent text-sm font-medium text-gray-700 transition-colors"
+                        className="px-4 py-2 border border-blue-300 rounded-lg hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent text-sm font-medium text-gray-700 transition-colors"
                       >
                         Next →
                       </button>
@@ -370,7 +370,7 @@ export default function AcceptedStudentsPage() {
                 {/* Modal Header */}
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h2 className="text-2xl font-bold text-orange-700">Student Details</h2>
+                    <h2 className="text-2xl font-bold text-blue-700">Student Details</h2>
                     <p className="text-gray-500 text-sm mt-1">Complete information about the accepted student</p>
                   </div>
                   <button
@@ -385,7 +385,7 @@ export default function AcceptedStudentsPage() {
                 </div>
 
                 {/* Student Profile Section */}
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 rounded-lg mb-6 text-white">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg mb-6 text-white">
                   <div className="flex items-center gap-4">
                     <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center">
                       <span className="text-3xl font-bold">
@@ -405,8 +405,8 @@ export default function AcceptedStudentsPage() {
                 </div>
 
                 {/* Contact Information */}
-                <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                  <h4 className="font-semibold text-orange-700 mb-3 flex items-center gap-2">
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-blue-700 mb-3 flex items-center gap-2">
                     <Mail className="h-5 w-5" />
                     Contact Information
                   </h4>
@@ -419,8 +419,8 @@ export default function AcceptedStudentsPage() {
                 </div>
 
                 {/* Academic Information */}
-                <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                  <h4 className="font-semibold text-orange-700 mb-3 flex items-center gap-2">
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-blue-700 mb-3 flex items-center gap-2">
                     <BookOpen className="h-5 w-5" />
                     Academic Information
                   </h4>
@@ -437,15 +437,15 @@ export default function AcceptedStudentsPage() {
                 </div>
 
                 {/* Advisor Information */}
-                <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                  <h4 className="font-semibold text-orange-700 mb-3 flex items-center gap-2">
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-blue-700 mb-3 flex items-center gap-2">
                     <UserCheck className="h-5 w-5" />
                     Advisor Assignment
                   </h4>
                   {selectedStudent.advisor ? (
                     <div className="flex items-center gap-2">
-                      <UserCheck className="h-5 w-5 text-orange-600" />
-                      <span className="font-semibold text-orange-700">{selectedStudent.advisor}</span>
+                      <UserCheck className="h-5 w-5 text-blue-600" />
+                      <span className="font-semibold text-blue-700">{selectedStudent.advisor}</span>
                     </div>
                   ) : (
                     <div>
@@ -455,7 +455,7 @@ export default function AcceptedStudentsPage() {
                           setShowDetailsModal(false)
                           setShowAssignModal(true)
                         }}
-                        className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 flex items-center gap-2 text-sm"
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 text-sm"
                       >
                         <UserPlus className="h-4 w-4" />
                         Assign Advisor
@@ -465,8 +465,8 @@ export default function AcceptedStudentsPage() {
                 </div>
 
                 {/* Profile Links */}
-                <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                  <h4 className="font-semibold text-orange-700 mb-3">Professional Profiles</h4>
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-blue-700 mb-3">Professional Profiles</h4>
                   <div className="flex gap-3">
                     <a
                       href={selectedStudent.github_link}
@@ -490,22 +490,22 @@ export default function AcceptedStudentsPage() {
                 </div>
 
                 {/* Documents */}
-                <div className="bg-orange-50 p-4 rounded-lg mb-6">
-                  <h4 className="font-semibold text-orange-700 mb-3 flex items-center gap-2">
+                <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                  <h4 className="font-semibold text-blue-700 mb-3 flex items-center gap-2">
                     <Download className="h-5 w-5" />
                     Documents
                   </h4>
                   <div className="flex gap-3">
                     <button
                       onClick={() => downloadFile(selectedStudent.cv_url, `CV_${selectedStudent.first_name}_${selectedStudent.last_name}.pdf`)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       <Download className="h-5 w-5" />
                       Download CV
                     </button>
                     <button
                       onClick={() => downloadFile(selectedStudent.resume_url, `Resume_${selectedStudent.first_name}_${selectedStudent.last_name}.pdf`)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       <Download className="h-5 w-5" />
                       Download Resume
@@ -534,7 +534,7 @@ export default function AcceptedStudentsPage() {
         {showAssignModal && selectedStudent && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h2 className="text-2xl font-bold text-orange-700 mb-4">Assign Advisor</h2>
+              <h2 className="text-2xl font-bold text-blue-700 mb-4">Assign Advisor</h2>
               
               <div className="mb-4">
                 <p className="text-sm text-gray-600 mb-2">Student:</p>
@@ -552,7 +552,7 @@ export default function AcceptedStudentsPage() {
                   value={advisorName}
                   onChange={(e) => setAdvisorName(e.target.value)}
                   placeholder="Enter advisor name"
-                  className="w-full px-4 py-2 border border-orange-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   autoFocus
                 />
               </div>
@@ -561,7 +561,7 @@ export default function AcceptedStudentsPage() {
                 <button
                   onClick={assignAdvisor}
                   disabled={!advisorName.trim() || assigningAdvisor}
-                  className="flex-1 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {assigningAdvisor ? (
                     <>
