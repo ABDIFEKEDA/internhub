@@ -6,25 +6,28 @@ export type ApplicationStatus =
 
 // Main Application Interface
 export interface Application {
-  id: number;
+  id: string | number;
   student: string;
   company: string;
   firstName: string;
   lastName: string;
   fieldOfStudy: string;
+  year: string;
   github: string;
   linkedin: string;
   cv: File | string | null;
-  resume?: File | string | null; // Optional if you use resume
-  status: ApplicationStatus;
-  applicationId?: string; // UUID from backend
+  resume?: File | string | null;
+  status: ApplicationStatus | string;
+  submittedAt: string;
+  company_id: string;
+  applicationId?: string;
   createdAt?: string;
   updatedAt?: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
   email: string;
-  created_at: string;
-  academic_year: string;
+  created_at?: string;
+  academic_year?: string;
 }
 
 // Form Data Interface (matches your JSON payload)
