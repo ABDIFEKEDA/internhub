@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { AdminSidebar } from "../../../../components/sidebar/AdminSidebar"
+import API_URL from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
@@ -42,7 +43,7 @@ export default function AdminMessagesPage() {
     setLoading(true)
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:5000/api/admin/messages?page=${currentPage}&limit=7`, {
+      const response = await fetch(`${API_URL}/api/admin/messages?page=${currentPage}&limit=7`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 

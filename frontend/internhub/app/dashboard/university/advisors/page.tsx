@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { UniversitySidebar } from "../../../../components/sidebar/UniversitySideBar"
 import { Card, CardContent } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -110,7 +111,7 @@ export default function AdvisorsManagementPage() {
   const fetchAdvisors = async () => {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:5000/api/advisors', {
+      const response = await fetch(`${API_URL}/api/advisors`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -130,7 +131,7 @@ export default function AdvisorsManagementPage() {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
       
       // Fetch accepted students from university applications
-      const studentsResponse = await fetch('http://localhost:5000/api/applications/university?status=accepted&limit=1000', {
+      const studentsResponse = await fetch(`${API_URL}/api/applications/university?status=accepted&limit=1000`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -144,7 +145,7 @@ export default function AdvisorsManagementPage() {
       const studentsData = await studentsResponse.json()
       
       // Fetch already assigned application IDs
-      const assignedResponse = await fetch('http://localhost:5000/api/advisors/assigned/application-ids', {
+      const assignedResponse = await fetch(`${API_URL}/api/advisors/assigned/application-ids`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       
@@ -200,7 +201,7 @@ export default function AdvisorsManagementPage() {
       
       console.log('Creating advisor with data:', requestBody)
 
-      const response = await fetch('http://localhost:5000/api/advisors', {
+      const response = await fetch(`${API_URL}/api/advisors`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +264,7 @@ export default function AdvisorsManagementPage() {
         const student = acceptedStudents.find(s => s.application_id === studentId)
         if (!student) return null
 
-        const response = await fetch('http://localhost:5000/api/advisors/assign', {
+        const response = await fetch(`${API_URL}/api/advisors/assign`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

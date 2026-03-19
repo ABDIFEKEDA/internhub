@@ -19,6 +19,7 @@ import {
   Building2, UserCircle, Loader2, AlertCircle, BookOpen, User, X
 } from "lucide-react";
 import type { Application, ApplicationStatus, BackendApplication} from "../../../types/Application";
+import API_URL from "@/lib/api";
 
 export default function ApplicationsPage() {
   const [apps, setApps] = useState<Application[]>([]);
@@ -54,7 +55,7 @@ export default function ApplicationsPage() {
       if (statusFilter !== "all") params.append('status', statusFilter.toUpperCase());
       if (search) params.append('search', search);
 
-      const res = await fetch(`http://localhost:5000/api/applications/university?${params}`, {
+      const res = await fetch(`${API_URL}/api/applications/university?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
@@ -113,7 +114,7 @@ export default function ApplicationsPage() {
     try {
       // Files are served statically, so we can directly open them
       const link = document.createElement('a');
-      link.href = `http://localhost:5000${url}`;
+      link.href = `${API_URL}${url}`;
       link.download = name;
       link.target = '_blank';
       document.body.appendChild(link);

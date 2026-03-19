@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { CompanySidebar } from "../../../../components/sidebar/CompanySidebar"
 import { Card, CardContent } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -84,7 +85,7 @@ export default function MentorsManagementPage() {
       const tokenPayload = JSON.parse(atob(token!.split('.')[1]))
       const companyId = tokenPayload.id || tokenPayload.userId
 
-      const response = await fetch(`http://localhost:5000/api/mentors/company/${companyId}`, {
+      const response = await fetch(`${API_URL}/api/mentors/company/${companyId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -103,7 +104,7 @@ export default function MentorsManagementPage() {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
       
-      const response = await fetch('http://localhost:5000/api/applications/company?status=accepted&limit=1000', {
+      const response = await fetch(`${API_URL}/api/applications/company?status=accepted&limit=1000`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -141,7 +142,7 @@ export default function MentorsManagementPage() {
       
       console.log('Creating mentor with data:', requestBody)
 
-      const response = await fetch('http://localhost:5000/api/mentors', {
+      const response = await fetch(`${API_URL}/api/mentors`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -203,7 +204,7 @@ export default function MentorsManagementPage() {
         const intern = acceptedInterns.find(i => i.id === internId)
         if (!intern) continue
 
-        await fetch('http://localhost:5000/api/mentors/assign', {
+        await fetch(`${API_URL}/api/mentors/assign`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
