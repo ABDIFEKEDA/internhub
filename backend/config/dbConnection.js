@@ -1,18 +1,27 @@
 const { Pool } = require('pg')
 require('dotenv').config()
 
-const dbConnection = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+// If DATABASE_URL exists (Render), use it. Otherwise, use local DB.
+let poolConfig
 
-  // use SSL only when deploying to Render
-  ssl: process.env.DB_HOST.includes("render.com")
-    ? { rejectUnauthorized: false }
-    : false
-})
+if (process.env.DATABASE_URL) {
+  poolConfig = {
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  }
+} else {
+  // Local development
+  poolConfig = {
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
+    ssl: false
+  }
+}
+
+const dbConnection = new Pool(poolConfig)
 
 dbConnection.connect()
   .then(() => console.log("Database connected successfully"))
