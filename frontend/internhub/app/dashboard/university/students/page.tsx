@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { UniversitySidebar } from "../../../../components/sidebar/UniversitySideBar"
 import { Card, CardContent } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { 
   Users, 
   Search, 
@@ -63,7 +64,7 @@ export default function UniversityStudentsPage() {
       }
 
       // Fetch all accepted students
-      const response = await fetch('http://localhost:5000/api/applications/university?status=accepted&limit=1000', {
+      const response = await fetch(`${API_URL}/api/applications/university?status=accepted&limit=1000`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { CompanySidebar } from "../../../../components/sidebar/CompanySidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { 
   FileText, 
   Search, 
@@ -95,7 +96,7 @@ export default function CompanyApplicationsPage() {
         ...(searchTerm && { search: searchTerm })
       })
 
-      const response = await fetch(`http://localhost:5000/api/applications/company?${params}`, {
+      const response = await fetch(`${API_URL}/api/applications/company?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -116,7 +117,7 @@ export default function CompanyApplicationsPage() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/applications/company/stats', {
+      const response = await fetch(`${API_URL}/api/applications/company/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -135,7 +136,7 @@ export default function CompanyApplicationsPage() {
   const updateApplicationStatus = async (applicationId: string, newStatus: string) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/applications/${applicationId}/review`, {
+      const response = await fetch(`${API_URL}/api/applications/${applicationId}/review`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +166,7 @@ export default function CompanyApplicationsPage() {
   const downloadFile = async (fileUrl: string, fileName: string) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000${fileUrl}`, {
+      const response = await fetch(`${API_URL}${fileUrl}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

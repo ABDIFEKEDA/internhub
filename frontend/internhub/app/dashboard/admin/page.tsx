@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { AdminSidebar } from "../../../components/sidebar/AdminSidebar"
+import API_URL from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
   Users, 
@@ -35,7 +36,7 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:5000/api/admin/stats', {
+      const response = await fetch(`${API_URL}/api/admin/stats`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 

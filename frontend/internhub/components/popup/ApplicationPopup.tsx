@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { CheckCircle2, Upload, X, AlertCircle, Loader2 } from "lucide-react";
 
 import type { Application, FormErrors } from "../../app/types/Application";
+import API_URL from "@/lib/api";
 
 interface ApplyInternshipDialogProps {
   onSubmit: (application: Application) => void;
@@ -132,7 +133,7 @@ export default function ApplyInternshipDialog({
     if (resumeFile) apiFormData.append("resume", resumeFile, resumeFile.name);
 
     try {
-      const response = await fetch("http://localhost:5000/api/applications", {
+      const response = await fetch(`${API_URL}/api/applications`, {
         method: "POST",
         headers: { 'Authorization': `Bearer ${localToken}` },
         body: apiFormData,

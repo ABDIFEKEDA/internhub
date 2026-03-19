@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { CompanySidebar } from "../../../../components/sidebar/CompanySidebar"
 import { Card, CardContent } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { 
   Users, 
   Search, 
@@ -66,7 +67,7 @@ export default function AcceptedStudentsPage() {
       console.log('Fetching accepted students with token:', token.substring(0, 20) + '...')
       
       // Use lowercase 'accepted' to match database format
-      const response = await fetch('http://localhost:5000/api/applications/company?status=accepted&limit=100', {
+      const response = await fetch(`${API_URL}/api/applications/company?status=accepted&limit=100`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -117,7 +118,7 @@ export default function AcceptedStudentsPage() {
   const downloadFile = async (fileUrl: string, fileName: string) => {
     try {
       const link = document.createElement('a')
-      link.href = `http://localhost:5000${fileUrl}`
+      link.href = `${API_URL}${fileUrl}`
       link.download = fileName
       link.target = '_blank'
       document.body.appendChild(link)

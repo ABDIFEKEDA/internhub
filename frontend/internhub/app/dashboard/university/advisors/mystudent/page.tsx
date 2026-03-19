@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { UniversitySidebar } from "../../../../../components/sidebar/UniversitySideBar"
 import { Card, CardContent } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -107,7 +108,7 @@ export default function AdvisorDashboardPage() {
       console.log('User info from token:', { userId, userEmail, userRole })
 
       // Check if user is an advisor by email
-      const advisorResponse = await fetch(`http://localhost:5000/api/advisors`, {
+      const advisorResponse = await fetch(`${API_URL}/api/advisors`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -132,7 +133,7 @@ export default function AdvisorDashboardPage() {
       if (!currentAdvisor) {
         console.log('User is not an advisor (university admin), showing all students')
         // If not an advisor, fetch all students (for university admin)
-        const response = await fetch(`http://localhost:5000/api/advisors/all-students`, {
+        const response = await fetch(`${API_URL}/api/advisors/all-students`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -152,7 +153,7 @@ export default function AdvisorDashboardPage() {
       } else {
         console.log('User is advisor:', currentAdvisor.first_name, currentAdvisor.last_name, 'ID:', currentAdvisor.id)
         // Fetch students assigned to this specific advisor
-        const response = await fetch(`http://localhost:5000/api/advisors/${currentAdvisor.id}/students`, {
+        const response = await fetch(`${API_URL}/api/advisors/${currentAdvisor.id}/students`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -191,7 +192,7 @@ export default function AdvisorDashboardPage() {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
       
-      const response = await fetch(`http://localhost:5000/api/advisors/feedback/${selectedStudent.assignment_id}`, {
+      const response = await fetch(`${API_URL}/api/advisors/feedback/${selectedStudent.assignment_id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

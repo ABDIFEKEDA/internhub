@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { CompanySidebar } from "../../../../../components/sidebar/CompanySidebar"
 import { Card, CardContent } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
   Table,
@@ -101,7 +102,7 @@ export default function MyInternsPage() {
       const companyId = userId
 
       // Check if user is a mentor by email
-      const mentorResponse = await fetch(`http://localhost:5000/api/mentors/company/${companyId}`, {
+      const mentorResponse = await fetch(`${API_URL}/api/mentors/company/${companyId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -126,7 +127,7 @@ export default function MyInternsPage() {
       if (!currentMentor) {
         console.log('User is not a mentor (company admin), showing all interns')
         // If not a mentor, fetch all assigned interns (for company admin)
-        const response = await fetch(`http://localhost:5000/api/mentors/all-interns`, {
+        const response = await fetch(`${API_URL}/api/mentors/all-interns`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -146,7 +147,7 @@ export default function MyInternsPage() {
       } else {
         console.log('User is mentor:', currentMentor.first_name, currentMentor.last_name, 'ID:', currentMentor.id)
         // Fetch interns assigned to this specific mentor
-        const response = await fetch(`http://localhost:5000/api/mentors/${currentMentor.id}/interns`, {
+        const response = await fetch(`${API_URL}/api/mentors/${currentMentor.id}/interns`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -179,7 +180,7 @@ export default function MyInternsPage() {
       
       console.log('Fetching projects for assignment:', assignmentId)
       
-      const response = await fetch(`http://localhost:5000/api/mentors/projects/${assignmentId}`, {
+      const response = await fetch(`${API_URL}/api/mentors/projects/${assignmentId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -223,7 +224,7 @@ export default function MyInternsPage() {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || localStorage.getItem('authToken')
       
-      const response = await fetch('http://localhost:5000/api/mentors/projects', {
+      const response = await fetch(`${API_URL}/api/mentors/projects`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -262,7 +263,7 @@ export default function MyInternsPage() {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken') || localStorage.getItem('authToken')
       
-      const response = await fetch(`http://localhost:5000/api/mentors/projects/${selectedProject.id}`, {
+      const response = await fetch(`${API_URL}/api/mentors/projects/${selectedProject.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

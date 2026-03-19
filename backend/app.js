@@ -16,8 +16,13 @@ const app = express();
 
 // ✅ FIX 1: CORS should be first and only once
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:3001"],
+  origin: [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://internhub-12.onrender.com"
+  ],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
 
 // ✅ FIX 2: fileUpload must come BEFORE express.json() and express.urlencoded()

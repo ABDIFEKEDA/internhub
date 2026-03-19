@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { AdminSidebar } from "../../../../components/sidebar/AdminSidebar"
+import API_URL from "@/lib/api"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { 
@@ -52,7 +53,7 @@ export default function AdminUsersPage() {
       if (roleFilter) params.append('role', roleFilter)
       if (searchTerm) params.append('search', searchTerm)
 
-      const response = await fetch(`http://localhost:5000/api/admin/users?${params}`, {
+      const response = await fetch(`${API_URL}/api/admin/users?${params}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -75,7 +76,7 @@ export default function AdminUsersPage() {
 
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, {
+      const response = await fetch(`${API_URL}/api/admin/users/${userId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -95,7 +96,7 @@ export default function AdminUsersPage() {
 
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:5000/api/admin/users/${selectedUser.id}/role`, {
+      const response = await fetch(`${API_URL}/api/admin/users/${selectedUser.id}/role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

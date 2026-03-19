@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { StudentSidebar } from "../../../../components/sidebar/StudentSidebar"
 import { Card, CardContent } from "@/components/ui/card"
+import API_URL from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import { 
   MessageSquare, 
@@ -85,7 +86,7 @@ export default function MessagesPage() {
     setLoading(true)
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:5000/api/messages/conversations', {
+      const response = await fetch(`${API_URL}/api/messages/conversations`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -103,7 +104,7 @@ export default function MessagesPage() {
   const fetchMessages = async (otherUserId: string) => {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch(`http://localhost:5000/api/messages/${otherUserId}`, {
+      const response = await fetch(`${API_URL}/api/messages/${otherUserId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
 
@@ -125,7 +126,7 @@ export default function MessagesPage() {
     setSending(true)
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('accessToken')
-      const response = await fetch('http://localhost:5000/api/messages', {
+      const response = await fetch(`${API_URL}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +168,7 @@ export default function MessagesPage() {
       // For now, use email as ID (will need proper user lookup in production)
       const receiverId = newMessageForm.receiver_email
       
-      const response = await fetch('http://localhost:5000/api/messages', {
+      const response = await fetch(`${API_URL}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
