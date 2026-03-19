@@ -165,6 +165,7 @@ export default function ApplyInternshipDialog({
         email: formData.get("email") as string,
         status: "Pending",
         submittedAt: new Date().toISOString(),
+        company_id: companyId,
       };
 
       // Store submitted data before resetting form

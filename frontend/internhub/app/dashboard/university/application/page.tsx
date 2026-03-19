@@ -18,7 +18,7 @@ import {
   Github, Linkedin, FileText, Download, Calendar,
   Building2, UserCircle, Loader2, AlertCircle, BookOpen, User, X
 } from "lucide-react";
-import type { Application, BackendApplication} from "../../../types/Application";
+import type { Application, ApplicationStatus, BackendApplication} from "../../../types/Application";
 
 export default function ApplicationsPage() {
   const [apps, setApps] = useState<Application[]>([]);
@@ -89,10 +89,10 @@ export default function ApplicationsPage() {
   const addApplication = async (app: Application) => {
     const formattedApp = {
       ...app,
-      status: app.status === "Pending" ? "Pending" : 
-              app.status === "Accepted" ? "Accepted" : 
-              app.status === "Rejected" ? "Rejected" : 
-              app.status || "Pending"
+      status: (app.status === "Pending" ? "Pending" :
+              app.status === "Accepted" ? "Accepted" :
+              app.status === "Rejected" ? "Rejected" :
+              app.status || "Pending") as ApplicationStatus,
     };
     // Add to UI immediately for instant feedback
     setApps(prev => [formattedApp, ...prev]);
